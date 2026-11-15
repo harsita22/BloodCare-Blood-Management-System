@@ -1,33 +1,32 @@
-import os
+﻿import os
 
+def get_env(primary, fallback=None):
+    value = os.environ.get(primary)
+    if value:
+        return value
 
-_REQUIRED_DB_ENV_VARS = (
-    "DB_HOST",
-    "DB_USER",
-    "DB_PASSWORD",
-    "DB_NAME",
-    "DB_PORT",
-)
+    if fallback:
+        value = os.environ.get(fallback)
+        if value:
+            return value
 
-_missing_db_env_vars = [
-    name for name in _REQUIRED_DB_ENV_VARS
-    if not os.environ.get(name)
-]
-if _missing_db_env_vars:
     raise RuntimeError(
-        "Missing required database environment variable(s): "
-        + ", ".join(_missing_db_env_vars)
+        f"Missing required environment variable: {primary}"
     )
 
-try:
-    _db_port = int(os.environ["DB_PORT"])
-except ValueError:
-    raise RuntimeError("DB_PORT must be an integer.") from None
-
 DB_CONFIG = {
-    "host": os.environ["DB_HOST"],
-    "user": os.environ["DB_USER"],
-    "password": os.environ["DB_PASSWORD"],
-    "database": os.environ["DB_NAME"],
-    "port": _db_port,
+    "host": get_env("DB_HOST", "TIDB_HOST"),
+    "user": get_env("DB_USER", "TIDB_USER"),
+    "password": get_env("DB_PASSWORD", "TIDB_PASSWORD"),
+    "database": get_env("DB_NAME", "TIDB_DATABASE"),
+    "port": int(get_env("DB_PORT", "TIDB_PORT")),
 }
+
+ssl_ca = os.environ.get("DB_SSL_CA") or os.environ.get("TIDB_SSL_CA")
+
+if ssl_ca:
+    DB_CONFIG.update({
+        "ssl_ca": ssl_ca,
+        "ssl_verify_cert": True,
+        "ssl_verify_identity": True,
+    })

@@ -1,15 +1,19 @@
-﻿import app as bloodcare
+﻿import os
+import app as bloodcare
 
 DEMO_DATABASE = "blood_management_demo_db"
 
-# Explicitly select the isolated demo database.
+# Explicitly use LOCAL MySQL for local development.
 bloodcare.DB_CONFIG = {
-    **bloodcare.DB_CONFIG,
-    "database": DEMO_DATABASE
+    "host": "127.0.0.1",
+    "user": "root",
+    "password": os.environ["LOCAL_DB_PASSWORD"],
+    "database": DEMO_DATABASE,
+    "port": 3306
 }
 
 print("=" * 45)
-print("       BLOODCARE DEMO SERVER")
+print("       BLOODCARE LOCAL DEMO SERVER")
 print("=" * 45)
 print(f"Database : {DEMO_DATABASE}")
 print("Host     : 127.0.0.1")
