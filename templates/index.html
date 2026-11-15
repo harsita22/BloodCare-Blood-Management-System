@@ -1,0 +1,319 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <title>BloodCare | Blood Management System</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">&#129656;</div>
+            <div>
+                <h2>BloodCare</h2>
+                <span>Management System</span>
+            </div>
+        </div>
+
+        <nav class="navigation">
+            <p class="nav-title">MAIN MENU</p>
+
+            <a href="/" class="nav-item active">
+                <span>&#128202;</span> Dashboard
+            </a>
+            <a href="/donors" class="nav-item">
+                <span>&#128100;</span> Donors
+            </a>
+            <a href="/inventory" class="nav-item">
+                <span>&#129656;</span> Blood Inventory
+            </a>
+            <a href="/hospital-requests" class="nav-item">
+                <span>&#127973;</span> Hospital Requests
+            </a>
+            <a href="/emergency-matching" class="nav-item">
+                <span>&#128279;</span> Emergency Matching
+            </a>
+            <a href="/reservations" class="nav-item">
+                <span>&#128203;</span> Reservations
+            </a>
+            <a href="/distribution" class="nav-item">
+                <span>&#128230;</span> Distribution
+            </a>
+
+            <p class="nav-title">MANAGEMENT</p>
+            <a href="/reports" class="nav-item">
+                <span>&#128202;</span> Reports
+            </a>
+            <a href="/settings" class="nav-item">
+                <span>&#9881;</span> Settings
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="help-box">
+                <div class="help-icon">?</div>
+                <div>
+                    <strong>Need Help?</strong>
+                    <small>Contact administrator</small>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- TOP BAR -->
+        <header class="topbar">
+            <div class="mobile-brand">&#129656; BloodCare</div>
+
+            <div class="search-box">
+                <span>&#10005;</span>
+                <input type="text" placeholder="Search donors, hospitals, blood units...">
+            </div>
+
+            <div class="top-actions">
+                <button class="notification" type="button">
+                    ðŸ”” <span class="notification-dot"></span>
+                </button>
+
+                <div class="profile">
+                    <div class="avatar">A</div>
+                    <div class="profile-info">
+                        <strong>Administrator</strong>
+                        <span>Blood Bank</span>
+                    </div>
+                    <span class="arrow">&#10140;</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD -->
+        <section class="dashboard">
+            <div class="welcome-section">
+                <canvas class="bc-three-canvas" aria-hidden="true"></canvas>
+                <div>
+                    <p class="welcome-small">BLOOD MANAGEMENT DASHBOARD</p>
+                    <h1>Welcome back &#128075;</h1>
+                    <p>Monitor blood inventory, manage donors and respond to emergency hospital requests from one place.</p>
+                </div>
+
+                <button class="emergency-btn" onclick="showEmergencyMessage()">&#128680; Emergency Matching</button>
+            </div>
+
+            <div id="message" class="system-message"></div>
+
+            <!-- LIVE STATISTICS -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <div class="stat-icon red">&#129656;</div>
+                        <span class="status positive">&#8226;Â Active</span>
+                    </div>
+                    <p>Total Blood Units</p>
+                    <h2 id="totalUnits">0</h2>
+                    <small>Available in inventory</small>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <div class="stat-icon purple">&#128101;</div>
+                        <span class="status positive">&#8226;Â Registered</span>
+                    </div>
+                    <p>Registered Donors</p>
+                    <h2 id="totalDonors">0</h2>
+                    <small>Donor records</small>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <div class="stat-icon orange">&#127973;</div>
+                        <span class="status warning">&#8226;Â Pending</span>
+                    </div>
+                    <p>Hospital Requests</p>
+                    <h2 id="totalRequests">0</h2>
+                    <small>Requests awaiting action</small>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <div class="stat-icon green">&#10003;</div>
+                        <span class="status positive">&#8226;Â System</span>
+                    </div>
+                    <p>Emergency Matches</p>
+                    <h2 id="totalMatches">0</h2>
+                    <small>Successful matches</small>
+                </div>
+            </div>
+
+            <!-- MAIN GRID -->
+            <div class="content-grid">
+                <div class="panel emergency-panel">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-label">EMERGENCY RESPONSE</span>
+                            <h2>Emergency Blood Matching</h2>
+                        </div>
+                        <span class="live-badge">&#8226;Â LIVE</span>
+                    </div>
+
+                    <div class="matching-content">
+                        <div class="matching-icon">&#129656;</div>
+                        <div>
+                            <h3>Find compatible blood units</h3>
+                            <p>Review hospital requests and available blood components. All matches require blood-bank verification and clinical approval.</p>
+                        </div>
+                    </div>
+
+                    <button class="primary-btn" onclick="startMatching()">
+                        Review Hospital Requests <span>&#127973;</span> Hospital Requests
+                    </button>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-label">INVENTORY</span>
+                            <h2>Blood Groups</h2>
+                        </div>
+                        <button class="view-btn" type="button" onclick="window.location.href='/inventory'">
+                            View All
+                        </button>
+                    </div>
+
+                    <div class="blood-groups">
+                        <div class="blood-group"><strong>A+</strong><span id="blood-Aplus">0 units</span></div>
+                        <div class="blood-group"><strong>A&#8722;</strong><span id="blood-Aminus">0 units</span></div>
+                        <div class="blood-group"><strong>B+</strong><span id="blood-Bplus">0 units</span></div>
+                        <div class="blood-group"><strong>B&#8722;</strong><span id="blood-Bminus">0 units</span></div>
+                        <div class="blood-group"><strong>AB+</strong><span id="blood-ABplus">0 units</span></div>
+                        <div class="blood-group"><strong>AB&#8722;</strong><span id="blood-ABminus">0 units</span></div>
+                        <div class="blood-group"><strong>O+</strong><span id="blood-Oplus">0 units</span></div>
+                        <div class="blood-group"><strong>O&#8722;</strong><span id="blood-Ominus">0 units</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LOWER GRID -->
+            <div class="lower-grid">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-label">COMPONENTS</span>
+                            <h2>Blood Component Inventory</h2>
+                        </div>
+                    </div>
+
+                    <div class="component-list">
+                        <div class="component-row">
+                            <div class="component-symbol">&#129656;</div>
+                            <div class="component-info">
+                                <strong>Whole Blood</strong>
+                                <span>Complete blood unit</span>
+                            </div>
+                            <strong>0</strong>
+                        </div>
+
+                        <div class="component-row">
+                            <div class="component-symbol">&#128276;</div>
+                            <div class="component-info">
+                                <strong>Red Blood Cells</strong>
+                                <span>RBC component</span>
+                            </div>
+                            <strong>0</strong>
+                        </div>
+
+                        <div class="component-row">
+                            <div class="component-symbol">&#128309;</div>
+                            <div class="component-info">
+                                <strong>Plasma</strong>
+                                <span>Blood plasma</span>
+                            </div>
+                            <strong>0</strong>
+                        </div>
+
+                        <div class="component-row">
+                            <div class="component-symbol">&#128994;</div>
+                            <div class="component-info">
+                                <strong>Platelets</strong>
+                                <span>Platelet component</span>
+                            </div>
+                            <strong>0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-label">QUICK ACTIONS</span>
+                            <h2>Manage System</h2>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <button onclick="openModule('donor')">
+                            <span>&#128100;</span>
+                            <div>
+                                <strong>Add Donor</strong>
+                                <small>Register new donor</small>
+                            </div>
+                            <b>&#8594;</b>
+                        </button>
+
+                        <button onclick="openModule('request')">
+                            <span>&#127973;</span>
+                            <div>
+                                <strong>New Hospital Request</strong>
+                                <small>Create blood request</small>
+                            </div>
+                            <b>&#8594;</b>
+                        </button>
+
+                        <button type="button" onclick="openModule('inventory')">
+                            <span>&#129656;</span>
+                            <div>
+                                <strong>Manage Inventory</strong>
+                                <small>View blood units</small>
+                            </div>
+                            <b>&#8594;</b>
+                        </button>
+
+                        <button onclick="openModule('reports')">
+                            <span>&#128202;</span>
+                            <div>
+                                <strong>View Reports</strong>
+                                <small>System analytics</small>
+                            </div>
+                            <b>&#8594;</b>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOOTER -->
+            <footer>
+                <span>&#169; 2026 BloodCare Management System</span>
+                <span>DBMS Project &#8226; MySQL + Flask</span>
+            </footer>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/bloodcare-3d.js') }}"></script>
+</body>
+</html>
+
+
+
+
+

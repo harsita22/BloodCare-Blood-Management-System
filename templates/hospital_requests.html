@@ -1,0 +1,1087 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <title>Hospital Requests | BloodCare</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #263238;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            color: #b71c1c;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: #687078;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 10px 16px;
+            background: #37474f;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #cbd2d9;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .form-actions {
+            margin-top: 22px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 11px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .submit-button {
+            background: #c62828;
+            color: white;
+        }
+
+        .reset-button {
+            background: #e5e7eb;
+            color: #263238;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th, td {
+            padding: 13px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .error {
+            color: #b71c1c;
+        }
+
+        .success {
+            color: #187443;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #687078;
+            padding: 25px;
+        }
+
+        @media (max-width: 650px) {
+            body {
+                padding: 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 17px;
+            }
+        }
+    </style>
+    <style id="hospital-requests-3d-redesign">
+        /* HOSPITAL REQUESTS HEARTBEAT EXPERIENCE */
+        html:has(.requests-page), body:has(.requests-page) {
+            min-height: 100%;
+            background: #070b14 !important;
+            color: #edf2ff !important;
+        }
+
+        body:has(.requests-page) {
+            padding: 24px clamp(14px, 2.4vw, 36px) 48px !important;
+            font-family: Arial, sans-serif;
+            background-image:
+                radial-gradient(ellipse at 82% 12%, rgba(142,37,73,.18), transparent 36%),
+                radial-gradient(ellipse at 10% 45%, rgba(25,91,146,.13), transparent 34%) !important;
+        }
+
+        .requests-page {
+            width: 100%;
+            max-width: 1600px;
+            margin: auto;
+            color: #edf2ff;
+        }
+
+        .requests-page .top-bar {
+            margin-bottom: 20px;
+        }
+
+        .requests-page .top-bar h1 {
+            color: #f8f8ff;
+            font-size: clamp(28px, 3vw, 38px);
+            letter-spacing: -.8px;
+        }
+
+        .requests-page .subtitle {
+            color: #afbbd0;
+            line-height: 1.7;
+        }
+
+        .requests-page .back-button {
+            background: #172337;
+            border: 1px solid rgba(255,255,255,.13);
+            border-radius: 10px;
+            color: #f7f9ff;
+            padding: 11px 16px;
+            transition: transform .2s, border-color .2s;
+        }
+
+        .requests-page .back-button:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255,117,151,.5);
+        }
+
+        .request-hero {
+            position: relative;
+            isolation: isolate;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            min-height: 300px;
+            margin: 14px 0 27px;
+            padding: 30px clamp(22px, 3vw, 44px);
+            overflow: hidden;
+            border: 1px solid rgba(255,108,142,.23);
+            border-radius: 26px;
+            background:
+                radial-gradient(ellipse at 78% 52%, rgba(238,43,91,.18), transparent 34%),
+                linear-gradient(115deg, rgba(13,29,46,.98), rgba(35,17,37,.98) 65%, rgba(19,15,31,.98));
+            box-shadow: 0 22px 65px rgba(0,0,0,.23), inset 0 1px rgba(255,255,255,.05);
+        }
+
+        .request-hero::before {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            inset: 0;
+            opacity: .18;
+            background-image: radial-gradient(rgba(255,255,255,.65) .8px, transparent .8px);
+            background-size: 24px 24px;
+            mask-image: linear-gradient(90deg, transparent, black);
+            pointer-events: none;
+        }
+
+        .request-hero-copy {
+            position: relative;
+            z-index: 3;
+            max-width: 540px;
+        }
+
+        .request-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: #ff9fba;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.8px;
+        }
+
+        .request-live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff617f;
+            box-shadow: 0 0 14px #ff617f;
+            animation: requestPulse 1.6s infinite;
+        }
+
+        .request-hero-copy h2 {
+            margin: 17px 0 10px;
+            color: #fbf8ff;
+            font-size: clamp(32px, 4vw, 49px);
+            line-height: 1.08;
+            letter-spacing: -1.6px;
+        }
+
+        .request-hero-copy h2 span {
+            color: #ff779a;
+            text-shadow: 0 0 28px rgba(255,80,124,.2);
+        }
+
+        .request-hero-copy p {
+            max-width: 460px;
+            margin: 0;
+            color: #bcc6d8;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .request-hero-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 21px;
+        }
+
+        .request-hero-tags span {
+            padding: 7px 10px;
+            border: 1px solid rgba(255,255,255,.13);
+            border-radius: 999px;
+            background: rgba(255,255,255,.05);
+            color: #eadce5;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .7px;
+        }
+
+        .request-heart-stage {
+            position: relative;
+            flex: 0 0 clamp(230px, 32%, 390px);
+            height: 270px;
+            perspective: 900px;
+            transform-style: preserve-3d;
+        }
+
+        .request-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 1px solid rgba(255,104,144,.5);
+            border-radius: 50%;
+            transform-style: preserve-3d;
+            pointer-events: none;
+        }
+
+        .request-ring-a {
+            width: 232px;
+            height: 232px;
+            margin: -116px 0 0 -116px;
+            transform: rotateX(67deg) rotateZ(-25deg);
+            animation: requestOrbit 14s linear infinite;
+        }
+
+        .request-ring-b {
+            width: 200px;
+            height: 200px;
+            margin: -100px 0 0 -100px;
+            border-color: rgba(93,214,231,.58);
+            transform: rotateY(65deg) rotateX(28deg);
+            animation: requestOrbit 11s linear infinite reverse;
+        }
+
+        .request-ring-c {
+            width: 168px;
+            height: 168px;
+            margin: -84px 0 0 -84px;
+            border-color: rgba(206,137,255,.4);
+            transform: rotateX(42deg) rotateY(42deg);
+            animation: requestOrbit 18s linear infinite;
+        }
+
+        .request-heart-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            width: 126px;
+            height: 126px;
+            margin: -63px 0 0 -63px;
+            border: 1px solid rgba(255,177,198,.65);
+            border-radius: 32px;
+            background: linear-gradient(145deg, rgba(255,93,130,.24), rgba(42,24,48,.94));
+            box-shadow: inset 0 0 25px rgba(255,93,130,.13),
+                        0 0 38px rgba(255,51,103,.24);
+            transform: rotateX(8deg) rotateY(-9deg);
+            animation: requestCoreFloat 3.6s ease-in-out infinite;
+            backdrop-filter: blur(12px);
+        }
+
+        .request-heart-core svg {
+            width: 92px;
+            overflow: visible;
+        }
+
+        .request-heart-line {
+            fill: none;
+            stroke: #ffb2c9;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 160;
+            stroke-dashoffset: 160;
+            filter: drop-shadow(0 0 5px rgba(255,112,152,.9));
+            animation: requestHeartbeat 2.4s ease-in-out infinite;
+        }
+
+        .request-heart-core span {
+            color: #ffe5ed;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .request-float-tag {
+            position: absolute;
+            z-index: 3;
+            padding: 7px 9px;
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 9px;
+            background: rgba(12,18,33,.83);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .7px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.2);
+            backdrop-filter: blur(12px);
+        }
+
+        .request-tag-critical { top: 18px; left: 0; color: #ff9eb5; }
+        .request-tag-live { top: 45%; right: 0; color: #8ce8f0; }
+        .request-tag-blood { bottom: 17px; left: 12%; color: #ffb1ca; }
+
+        .request-hero-glow {
+            position: absolute;
+            z-index: -1;
+            right: 12%;
+            top: 13%;
+            width: 190px;
+            height: 190px;
+            border-radius: 50%;
+            background: rgba(237,46,105,.15);
+            filter: blur(55px);
+            pointer-events: none;
+        }
+
+        .requests-page .card {
+            margin-bottom: 23px;
+            padding: clamp(18px, 2.2vw, 28px);
+            border: 1px solid rgba(172,187,225,.16);
+            border-radius: 21px;
+            background: linear-gradient(145deg, rgba(18,28,44,.97), rgba(13,17,31,.98));
+            color: #edf2ff;
+            box-shadow: 0 18px 48px rgba(0,0,0,.18), inset 0 1px rgba(255,255,255,.035);
+            transition: border-color .25s, transform .25s, box-shadow .25s;
+        }
+
+        .requests-page .card:hover {
+            border-color: rgba(255,114,151,.25);
+            box-shadow: 0 20px 52px rgba(0,0,0,.23), inset 0 1px rgba(255,255,255,.04);
+        }
+
+        .requests-page .card h2 {
+            margin-bottom: 10px;
+            color: #f7f8ff;
+            font-size: 21px;
+        }
+
+        .requests-page .card > p {
+            color: #aebbd0;
+            line-height: 1.7;
+        }
+
+        .requests-page .form-grid {
+            gap: 18px;
+        }
+
+        .requests-page .form-group label {
+            color: #cbd6e9;
+            font-size: 12px;
+            letter-spacing: .2px;
+        }
+
+        .requests-page input,
+        .requests-page select {
+            min-height: 43px;
+            border: 1px solid rgba(177,194,224,.2);
+            border-radius: 10px;
+            outline: none;
+            background: #0d1727;
+            color: #edf2ff;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .requests-page input::placeholder {
+            color: #8291aa;
+        }
+
+        .requests-page input:focus,
+        .requests-page select:focus {
+            border-color: #ff7399;
+            box-shadow: 0 0 0 3px rgba(255,115,153,.12);
+        }
+
+        .requests-page select option {
+            background: #0d1727;
+            color: #edf2ff;
+        }
+
+        .requests-page .form-actions {
+            flex-wrap: wrap;
+        }
+
+        .requests-page button {
+            border-radius: 10px;
+            font-weight: 700;
+            transition: transform .2s, filter .2s, box-shadow .2s;
+        }
+
+        .requests-page button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.08);
+        }
+
+        .requests-page .submit-button {
+            background: linear-gradient(135deg, #e93c61, #b71f49);
+            color: #fff;
+            box-shadow: 0 8px 22px rgba(218,42,82,.17);
+        }
+
+        .requests-page .reset-button {
+            border: 1px solid rgba(255,255,255,.12);
+            background: #202b3e;
+            color: #e3eaf7;
+        }
+
+        .requests-page .message {
+            min-height: 0;
+            margin-top: 14px;
+        }
+
+        .requests-page .message:empty {
+            display: none;
+        }
+
+        .requests-page .message.error {
+            color: #ff9eae;
+        }
+
+        .requests-page .message.success {
+            color: #77edb7;
+        }
+
+        .requests-page .table-wrapper {
+            overflow-x: auto;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 14px;
+        }
+
+        .requests-page table {
+            width: 100%;
+            min-width: 850px;
+            border-collapse: separate;
+            border-spacing: 0;
+            color: #dce4f4;
+        }
+
+        .requests-page th,
+        .requests-page td {
+            padding: 14px 13px;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .requests-page th {
+            background: #182438;
+            color: #ffb0c7;
+            font-size: 10px;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .requests-page td {
+            background: rgba(255,255,255,.012);
+            color: #cbd5e7;
+        }
+
+        .requests-page tbody tr:hover td {
+            background: rgba(255,92,130,.065);
+            color: #fff;
+        }
+
+        .requests-page .empty-message {
+            padding: 25px;
+            color: #9caac1;
+            text-align: center;
+        }
+
+        @keyframes requestPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .45; }
+        }
+
+        @keyframes requestOrbit {
+            from { rotate: 0deg; }
+            to { rotate: 360deg; }
+        }
+
+        @keyframes requestCoreFloat {
+            0%, 100% { translate: 0 0; }
+            50% { translate: 0 -8px; }
+        }
+
+        @keyframes requestHeartbeat {
+            0% { stroke-dashoffset: 160; opacity: .5; }
+            45%, 75% { stroke-dashoffset: 0; opacity: 1; }
+            100% { stroke-dashoffset: -160; opacity: .65; }
+        }
+
+        @media (max-width: 760px) {
+            body:has(.requests-page) {
+                padding: 15px !important;
+            }
+
+            .request-hero {
+                min-height: 0;
+                padding: 25px 21px 10px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .request-hero-copy h2 {
+                font-size: 36px;
+            }
+
+            .request-heart-stage {
+                flex-basis: auto;
+                width: 100%;
+                height: 220px;
+            }
+
+            .requests-page .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .request-live-dot, .request-ring, .request-heart-core,
+            .request-heart-line {
+                animation: none !important;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+
+<body>
+    <div class="container requests-page">
+
+        <header class="top-bar">
+            <div>
+                <h1>Hospital Requests</h1>
+                <p class="subtitle">
+                    Create and monitor blood component requests.
+                </p>
+            </div>
+
+            <div class="theme-page-actions">
+                <a href="/" class="back-button">Dashboard</a>
+                <a href="/settings" class="back-button">Settings</a>
+            </div>
+        </header>
+        <!-- HOSPITAL REQUESTS HEARTBEAT EXPERIENCE -->
+        <section class="request-hero" aria-label="Emergency request command center">
+            <div class="request-hero-copy">
+                <span class="request-eyebrow"><span class="request-live-dot"></span> EMERGENCY RESPONSE NETWORK</span>
+                <h2>When every<br><span>second matters.</span></h2>
+                <p>Coordinate hospital blood requests, track urgency, and keep critical supplies moving to the people who need them.</p>
+                <div class="request-hero-tags">
+                    <span>HOSPITALS</span>
+                    <span>PRIORITY REQUESTS</span>
+                    <span>BLOOD COMPONENTS</span>
+                </div>
+            </div>
+            <div class="request-heart-stage" aria-hidden="true">
+                <div class="request-ring request-ring-a"></div>
+                <div class="request-ring request-ring-b"></div>
+                <div class="request-ring request-ring-c"></div>
+                <div class="request-heart-core">
+                    <svg viewBox="0 0 120 120" role="presentation">
+                        <path class="request-heart-line" d="M8 62 H30 L42 37 L57 86 L72 48 L82 62 H112"/>
+                    </svg>
+                    <span>CARE IN MOTION</span>
+                </div>
+                <span class="request-float-tag request-tag-critical">CRITICAL</span>
+                <span class="request-float-tag request-tag-live">LIVE RESPONSE</span>
+                <span class="request-float-tag request-tag-blood">BLOOD LINK</span>
+            </div>
+            <div class="request-hero-glow"></div>
+        </section>
+
+        <section class="card">
+            <h2>Register a Hospital</h2>
+
+            <p>
+                Register a hospital before creating its blood requests.
+            </p>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="hospitalName">Hospital Name *</label>
+                    <input id="hospitalName" type="text" required
+                           placeholder="Enter hospital name">
+                </div>
+
+                <div class="form-group">
+                    <label for="contactPerson">Contact Person</label>
+                    <input id="contactPerson" type="text"
+                           placeholder="Enter contact person">
+                </div>
+
+                <div class="form-group">
+                    <label for="hospitalPhone">Phone *</label>
+                    <input id="hospitalPhone" type="tel" required
+                           placeholder="Enter phone number">
+                </div>
+
+                <div class="form-group">
+                    <label for="hospitalEmail">Email</label>
+                    <input id="hospitalEmail" type="email"
+                           placeholder="Enter email address">
+                </div>
+
+                <div class="form-group">
+                    <label for="hospitalAddress">Address</label>
+                    <input id="hospitalAddress" type="text"
+                           placeholder="Enter hospital address">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="submit-button"
+                        onclick="registerHospital()">
+                    Register Hospital
+                </button>
+            </div>
+
+            <p id="hospitalMessage" class="message"></p>
+        </section>
+
+        <section class="card">
+            <h2>Create Blood Request</h2>
+
+            <form id="requestForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="hospitalId">Hospital *</label>
+                        <select id="hospitalId" required>
+                            <option value="">Select hospital</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bloodGroupId">Blood Group *</label>
+                        <select id="bloodGroupId" required>
+                            <option value="">Select blood group</option>
+                            <option value="1">A+</option>
+                            <option value="2">A-</option>
+                            <option value="3">B+</option>
+                            <option value="4">B-</option>
+                            <option value="5">AB+</option>
+                            <option value="6">AB-</option>
+                            <option value="7">O+</option>
+                            <option value="8">O-</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="componentId">Blood Component *</label>
+                        <select id="componentId" required>
+                            <option value="">Select component</option>
+                            <option value="1">Whole Blood</option>
+                            <option value="2">RBC</option>
+                            <option value="3">Plasma</option>
+                            <option value="4">Platelets</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quantityMl">Quantity (ml) *</label>
+                        <input id="quantityMl" type="number"
+                               min="1" step="1" required
+                               placeholder="Enter quantity">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emergencyLevel">Emergency Level</label>
+                        <select id="emergencyLevel">
+                            <option value="Normal">Normal</option>
+                            <option value="Urgent">Urgent</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="requiredDate">Required Date</label>
+                        <input id="requiredDate" type="date">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-button">
+                        Submit Request
+                    </button>
+
+                    <button type="reset" class="reset-button">
+                        Clear Form
+                    </button>
+                </div>
+
+                <p id="requestMessage" class="message"></p>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Blood Request Records</h2>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Hospital</th>
+                            <th>Blood Group</th>
+                            <th>Component</th>
+                            <th>Quantity (ml)</th>
+                            <th>Emergency</th>
+                            <th>Required Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="requestsTable">
+                        <tr>
+                            <td colspan="8" class="empty-message">
+                                Requests will appear here once connected
+                                to the database.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+
+<script>
+    async function registerHospital() {
+        const message = document.getElementById("hospitalMessage");
+
+        const hospitalData = {
+            hospital_name: document.getElementById("hospitalName").value.trim(),
+            contact_person: document.getElementById("contactPerson").value.trim(),
+            phone: document.getElementById("hospitalPhone").value.trim(),
+            email: document.getElementById("hospitalEmail").value.trim(),
+            address: document.getElementById("hospitalAddress").value.trim()
+        };
+
+        if (!hospitalData.hospital_name || !hospitalData.phone) {
+            message.className = "message error";
+            message.textContent = "Hospital name and phone are required.";
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/hospitals", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(hospitalData)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(
+                    result.error || "Unable to register hospital."
+                );
+            }
+
+            message.className = "message success";
+            message.textContent =
+                "Hospital registered successfully! Hospital ID: " +
+                result.hospital_id;
+
+            document.getElementById("hospitalName").value = "";
+            document.getElementById("contactPerson").value = "";
+            document.getElementById("hospitalPhone").value = "";
+            document.getElementById("hospitalEmail").value = "";
+            document.getElementById("hospitalAddress").value = "";
+
+            // Refresh the hospital dropdown after registration.
+            await loadHospitals();
+
+            // Select the newly registered hospital automatically.
+            document.getElementById("hospitalId").value =
+                String(result.hospital_id);
+
+        } catch (error) {
+            message.className = "message error";
+            message.textContent = error.message;
+        }
+    }
+
+
+    async function loadHospitals() {
+        const hospitalSelect = document.getElementById("hospitalId");
+
+        try {
+            const response = await fetch("/api/hospitals");
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(
+                    result.error || "Unable to load hospitals."
+                );
+            }
+
+            hospitalSelect.innerHTML =
+                '<option value="">Select hospital</option>';
+
+            result.hospitals.forEach(function(hospital) {
+                const option = document.createElement("option");
+
+                option.value = hospital.hospital_id;
+                option.textContent =
+                    hospital.hospital_name +
+                    " (ID: " + hospital.hospital_id + ")";
+
+                hospitalSelect.appendChild(option);
+            });
+
+            if (result.hospitals.length === 0) {
+                hospitalSelect.innerHTML =
+                    '<option value="">Register a hospital first</option>';
+            }
+
+        } catch (error) {
+            hospitalSelect.innerHTML =
+                '<option value="">Unable to load hospitals</option>';
+
+            console.error("Hospital loading error:", error);
+        }
+    }
+
+
+    
+    async function loadRequests() {
+        const table = document.getElementById("requestsTable");
+
+        try {
+            const response = await fetch("/api/hospital-requests");
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || "Unable to load requests.");
+            }
+
+            table.innerHTML = "";
+
+            if (result.requests.length === 0) {
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="empty-message">
+                            No blood requests found.
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            result.requests.forEach(function(item) {
+                const row = document.createElement("tr");
+
+                const values = [
+                    item.request_id,
+                    item.hospital_name,
+                    item.blood_group,
+                    item.component_name,
+                    item.quantity_ml,
+                    item.emergency_level,
+                    item.required_date || "Not specified",
+                    item.request_status
+                ];
+
+                values.forEach(function(value) {
+                    const cell = document.createElement("td");
+                    cell.textContent = value ?? "";
+                    row.appendChild(cell);
+                });
+
+                table.appendChild(row);
+            });
+        } catch (error) {
+            table.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty-message">
+                        ${error.message}
+                    </td>
+                </tr>`;
+            console.error("Request loading error:", error);
+        }
+    }
+
+    document.getElementById("requestForm").addEventListener(
+        "submit",
+        async function(event) {
+            event.preventDefault();
+
+            const message = document.getElementById("requestMessage");
+            const submitButton = this.querySelector(
+                'button[type="submit"]'
+            );
+
+            const requestData = {
+                hospital_id: document.getElementById("hospitalId").value,
+                blood_group_id: document.getElementById("bloodGroupId").value,
+                component_id: document.getElementById("componentId").value,
+                quantity_ml: document.getElementById("quantityMl").value,
+                emergency_level: document.getElementById("emergencyLevel").value,
+                required_date: document.getElementById("requiredDate").value
+            };
+
+            if (
+                !requestData.hospital_id ||
+                !requestData.blood_group_id ||
+                !requestData.component_id ||
+                Number(requestData.quantity_ml) <= 0
+            ) {
+                message.className = "message error";
+                message.textContent = "Please complete all required fields.";
+                return;
+            }
+
+            submitButton.disabled = true;
+            message.className = "message";
+            message.textContent = "Submitting request...";
+
+            try {
+                const response = await fetch("/api/hospital-requests", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(
+                        result.error || "Unable to submit request."
+                    );
+                }
+
+                message.className = "message success";
+                message.textContent =
+                    "Request submitted successfully! Request ID: " +
+                    result.request_id;
+
+                this.reset();
+                await loadRequests();
+
+            } catch (error) {
+                message.className = "message error";
+                message.textContent = error.message;
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+    );
+
+    document.addEventListener("DOMContentLoaded", async function() {
+        await loadHospitals();
+        await loadRequests();
+    });
+</script>
+</body>
+</html>
+

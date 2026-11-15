@@ -1,0 +1,1373 @@
+﻿
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <title>Blood Inventory | BloodCare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .inventory-message {
+            display: none;
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 8px;
+        }
+        .inventory-message.success {
+            display: block;
+            background: #e8f7ee;
+            color: #17663a;
+        }
+        .inventory-message.error {
+            display: block;
+            background: #fff0f0;
+            color: #a32020;
+        }
+        .inventory-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 16px 0;
+        }
+        .inventory-tools input,
+        .inventory-tools select {
+            padding: 10px;
+            border: 1px solid #d6dbe3;
+            border-radius: 8px;
+        }
+        .quantity-cell {
+            white-space: nowrap;
+        }
+        .status-badge.status-available {
+            background: #e5f7ec;
+            color: #17663a;
+        }
+        .status-badge.status-reserved {
+            background: #fff4d8;
+            color: #815600;
+        }
+        .status-badge.status-used {
+            background: #e8edf5;
+            color: #34445e;
+        }
+        .status-badge.status-expired {
+            background: #ffe6e6;
+            color: #a32020;
+        }
+        .form-hint {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #697386;
+        }
+        @media (max-width: 640px) {
+            .inventory-tools input,
+            .inventory-tools select {
+                width: 100%;
+            }
+        }
+    </style>
+    <style id="inventory-3d-redesign">
+        /* INVENTORY 3D ORBIT EXPERIENCE */
+        body:has(.inv-hero) {
+            background:
+                radial-gradient(ellipse at 75% 12%, rgba(112,42,115,.19), transparent 38%),
+                radial-gradient(ellipse at 12% 45%, rgba(0,167,180,.10), transparent 36%),
+                #070b14;
+        }
+
+        .page:has(.inv-hero) {
+            max-width: 1600px;
+            margin-inline: auto;
+            padding: 24px clamp(14px, 2.4vw, 36px) 48px;
+        }
+
+        .inv-hero {
+            min-height: 300px;
+            margin: 12px 0 28px;
+            padding: 34px clamp(22px, 3vw, 46px);
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border: 1px solid rgba(207,155,225,.24);
+            border-radius: 28px;
+            background:
+                radial-gradient(ellipse at 78% 50%, rgba(232,46,100,.19), transparent 38%),
+                linear-gradient(115deg, rgba(14,34,48,.97), rgba(38,17,43,.96) 58%, rgba(16,15,34,.98));
+            box-shadow: 0 22px 70px rgba(0,0,0,.22), inset 0 1px rgba(255,255,255,.06);
+        }
+
+        .inv-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            opacity: .24;
+            background-image: radial-gradient(rgba(255,255,255,.6) .8px, transparent .8px);
+            background-size: 25px 25px;
+            mask-image: linear-gradient(90deg, transparent, black);
+            pointer-events: none;
+        }
+
+        .inv-hero-copy {
+            max-width: 510px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .inv-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: #f7a7d9;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .inv-live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #42efb1;
+            box-shadow: 0 0 14px #42efb1;
+            animation: invPulse 1.8s infinite;
+        }
+
+        .inv-hero-copy h2 {
+            margin: 17px 0 10px;
+            color: #fff;
+            font-size: clamp(32px, 4vw, 49px);
+            line-height: 1.06;
+            letter-spacing: -1.8px;
+        }
+
+        .inv-hero-copy h2 span {
+            color: #ff739d;
+            text-shadow: 0 0 30px rgba(255,75,133,.22);
+        }
+
+        .inv-hero-copy p {
+            max-width: 440px;
+            margin: 0;
+            color: #c0c5d7;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .inv-hero-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 22px;
+        }
+
+        .inv-hero-tags span {
+            padding: 7px 10px;
+            border: 1px solid rgba(255,255,255,.13);
+            border-radius: 999px;
+            background: rgba(255,255,255,.055);
+            color: #e4ddea;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .8px;
+        }
+
+        .inv-orbit-art {
+            position: relative;
+            flex: 0 0 clamp(230px, 32%, 390px);
+            height: 270px;
+            perspective: 900px;
+            transform-style: preserve-3d;
+        }
+
+        .inv-orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 1px solid rgba(255,126,172,.45);
+            border-radius: 50%;
+            transform-style: preserve-3d;
+            pointer-events: none;
+        }
+
+        .inv-orbit-one {
+            width: 235px;
+            height: 235px;
+            margin: -117px 0 0 -117px;
+            transform: rotateX(67deg) rotateZ(-22deg);
+            animation: invOrbitSpin 14s linear infinite;
+        }
+
+        .inv-orbit-two {
+            width: 205px;
+            height: 205px;
+            margin: -102px 0 0 -102px;
+            border-color: rgba(76,225,226,.6);
+            transform: rotateX(68deg) rotateY(48deg);
+            animation: invOrbitSpin 11s linear infinite reverse;
+        }
+
+        .inv-orbit-three {
+            width: 175px;
+            height: 175px;
+            margin: -87px 0 0 -87px;
+            border-color: rgba(219,173,255,.46);
+            transform: rotateY(68deg) rotateX(24deg);
+            animation: invOrbitSpin 18s linear infinite;
+        }
+
+        .inv-drop {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 94px;
+            height: 112px;
+            margin: -53px 0 0 -47px;
+            overflow: hidden;
+            border: 1px solid rgba(255,210,229,.8);
+            border-radius: 58% 42% 54% 46% / 70% 70% 30% 30%;
+            transform: rotate(45deg) rotateX(-8deg);
+            background: linear-gradient(135deg, #ffb3cc 0%, #ff466f 27%, #c40c45 62%, #650b3d 100%);
+            box-shadow: inset -12px -10px 24px rgba(58,0,40,.45),
+                        inset 8px 7px 18px rgba(255,255,255,.35),
+                        0 0 35px rgba(255,54,111,.43);
+            animation: invDropFloat 4s ease-in-out infinite;
+            transform-style: preserve-3d;
+        }
+
+        .inv-drop-shine {
+            position: absolute;
+            top: 14px;
+            left: 16px;
+            width: 22px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,0));
+            filter: blur(2px);
+            transform: rotate(-14deg);
+        }
+
+        .inv-drop-core {
+            position: absolute;
+            right: 11px;
+            bottom: 13px;
+            width: 36px;
+            height: 46px;
+            border: 7px solid rgba(104,0,39,.23);
+            border-radius: 50%;
+            box-shadow: inset 2px 2px 7px rgba(255,180,208,.32);
+        }
+
+        .inv-drop-shadow {
+            position: absolute;
+            left: 50%;
+            top: 72%;
+            width: 115px;
+            height: 25px;
+            margin-left: -57px;
+            border-radius: 50%;
+            background: rgba(255,37,103,.22);
+            filter: blur(18px);
+            animation: invShadowPulse 4s ease-in-out infinite;
+        }
+
+        .inv-orbit-label {
+            position: absolute;
+            z-index: 2;
+            padding: 7px 10px;
+            border: 1px solid rgba(255,255,255,.17);
+            border-radius: 9px;
+            background: rgba(13,17,32,.78);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.22);
+            backdrop-filter: blur(12px);
+        }
+
+        .inv-label-rbc { top: 25px; left: 7%; }
+        .inv-label-plasma { top: 42%; right: 0; color: #7de8e6; }
+        .inv-label-platelets { bottom: 16px; left: 22%; color: #ff9cbd; }
+
+        .inv-hero-glow {
+            position: absolute;
+            right: 12%;
+            top: 8%;
+            width: 200px;
+            height: 200px;
+            z-index: -1;
+            border-radius: 50%;
+            background: rgba(164,46,137,.16);
+            filter: blur(55px);
+            pointer-events: none;
+        }
+
+        .page:has(.inv-hero) .module-header {
+            padding: 10px 4px 15px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        .page:has(.inv-hero) .module-label {
+            color: #f19bcf;
+            letter-spacing: 2px;
+            font-weight: 800;
+        }
+
+        .page:has(.inv-hero) .module-header h1 {
+            color: #f8f8ff;
+            letter-spacing: -.8px;
+        }
+
+        .page:has(.inv-hero) .module-header p:not(.module-label) {
+            color: #aeb7cb;
+        }
+
+        .page:has(.inv-hero) .module-card {
+            overflow: hidden;
+            border: 1px solid rgba(172,187,225,.17);
+            border-radius: 23px;
+            background: linear-gradient(145deg, rgba(18,28,44,.96), rgba(13,17,31,.97));
+            box-shadow: 0 18px 50px rgba(0,0,0,.19), inset 0 1px rgba(255,255,255,.04);
+        }
+
+        .page:has(.inv-hero) .card-heading {
+            gap: 16px;
+            flex-wrap: wrap;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        .page:has(.inv-hero) .card-heading h2 {
+            color: #f8f8ff;
+        }
+
+        .page:has(.inv-hero) .card-heading p {
+            color: #aeb7cb;
+        }
+
+        .page:has(.inv-hero) .inventory-tools {
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 16px;
+            background: rgba(255,255,255,.025);
+        }
+
+        .page:has(.inv-hero) .inventory-tools input,
+        .page:has(.inv-hero) .inventory-tools select {
+            min-height: 43px;
+            border: 1px solid rgba(177,194,224,.2);
+            border-radius: 10px;
+            outline: none;
+            background: #111b2b;
+            color: #edf1fc;
+            transition: border-color .2s, box-shadow .2s, transform .2s;
+        }
+
+        .page:has(.inv-hero) .inventory-tools input {
+            flex: 1 1 210px;
+        }
+
+        .page:has(.inv-hero) .inventory-tools select {
+            flex: 1 1 145px;
+        }
+
+        .page:has(.inv-hero) .inventory-tools input:focus,
+        .page:has(.inv-hero) .inventory-tools select:focus {
+            border-color: #ff6b9b;
+            box-shadow: 0 0 0 3px rgba(255,107,155,.12);
+        }
+
+        .page:has(.inv-hero) .table-container {
+            overflow-x: auto;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 15px;
+        }
+
+        .page:has(.inv-hero) table {
+            min-width: 1050px;
+            border-collapse: separate;
+            border-spacing: 0;
+            color: #dce4f4;
+        }
+
+        .page:has(.inv-hero) table thead th {
+            padding: 15px 13px;
+            border-bottom: 1px solid rgba(255,255,255,.12);
+            background: #172236;
+            color: #f3c0d8;
+            font-size: 10px;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .page:has(.inv-hero) table tbody td {
+            padding: 14px 13px;
+            border-bottom: 1px solid rgba(255,255,255,.055);
+            background: rgba(255,255,255,.012);
+            color: #cbd5e7;
+            font-size: 12px;
+        }
+
+        .page:has(.inv-hero) table tbody tr {
+            transition: transform .2s, filter .2s;
+        }
+
+        .page:has(.inv-hero) table tbody tr:hover td {
+            background: rgba(103,131,188,.10);
+            color: #fff;
+        }
+
+        .page:has(.inv-hero) .blood-badge {
+            border: 1px solid rgba(255,104,151,.24);
+            border-radius: 8px;
+            background: rgba(244,63,111,.13);
+            color: #ff9cba;
+            padding: 5px 8px;
+            font-weight: 800;
+        }
+
+        .page:has(.inv-hero) .status-badge {
+            display: inline-block;
+            padding: 5px 8px;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .page:has(.inv-hero) .status-badge.status-available {
+            background: rgba(45,205,139,.12);
+            color: #6cf0b6;
+        }
+
+        .page:has(.inv-hero) .status-badge.status-reserved {
+            background: rgba(255,190,66,.12);
+            color: #ffd27b;
+        }
+
+        .page:has(.inv-hero) .status-badge.status-used {
+            background: rgba(130,153,190,.14);
+            color: #b9c8e4;
+        }
+
+        .page:has(.inv-hero) .status-badge.status-expired {
+            background: rgba(255,76,103,.13);
+            color: #ff94a7;
+        }
+
+        .page:has(.inv-hero) .inventory-message.success {
+            background: rgba(29,175,112,.13);
+            color: #7af0b7;
+            border: 1px solid rgba(66,239,177,.22);
+        }
+
+        .page:has(.inv-hero) .inventory-message.error {
+            background: rgba(230,55,82,.12);
+            color: #ffabb8;
+            border: 1px solid rgba(255,92,120,.25);
+        }
+
+        .page:has(.inv-hero) .form-hint {
+            color: #9daac1;
+        }
+
+        @keyframes invOrbitSpin {
+            from { rotate: 0deg; }
+            to { rotate: 360deg; }
+        }
+
+        @keyframes invDropFloat {
+            0%, 100% { translate: 0 0; }
+            50% { translate: 0 -10px; }
+        }
+
+        @keyframes invShadowPulse {
+            0%, 100% { opacity: .55; scale: 1; }
+            50% { opacity: .9; scale: .8; }
+        }
+
+        @keyframes invPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .45; }
+        }
+
+        @media (max-width: 760px) {
+            .inv-hero {
+                min-height: 0;
+                padding: 26px 22px 10px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .inv-orbit-art {
+                flex-basis: auto;
+                width: 100%;
+                height: 220px;
+            }
+
+            .inv-hero-copy h2 {
+                font-size: 36px;
+            }
+
+            .page:has(.inv-hero) .card-heading {
+                align-items: flex-start;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .inv-drop, .inv-orbit, .inv-live-dot, .inv-drop-shadow {
+                animation: none !important;
+            }
+        }
+    </style>
+    <style id="inventory-visual-fix">
+        /* Remove the legacy white page and header surfaces */
+        html:has(.inv-hero),
+        body:has(.inv-hero) {
+            min-height: 100%;
+            background-color: #070b14 !important;
+            color: #edf2ff !important;
+        }
+
+        body:has(.inv-hero) {
+            background-image:
+                radial-gradient(ellipse at 76% 12%, rgba(112,42,115,.19), transparent 38%),
+                radial-gradient(ellipse at 12% 45%, rgba(0,167,180,.10), transparent 36%) !important;
+        }
+
+        .page:has(.inv-hero) {
+            min-height: 100vh;
+            background: transparent !important;
+            color: #edf2ff !important;
+        }
+
+        .page:has(.inv-hero) .module-header {
+            background: transparent !important;
+            color: #f8f8ff !important;
+            box-shadow: none !important;
+            border: 0 !important;
+        }
+
+        .page:has(.inv-hero) .module-header h1 {
+            color: #f8f8ff !important;
+        }
+
+        .page:has(.inv-hero) .module-header p:not(.module-label) {
+            color: #b8c3d8 !important;
+        }
+
+        .page:has(.inv-hero) .back-button {
+            color: #f8faff !important;
+            background: #182237 !important;
+            border: 1px solid rgba(255,255,255,.12) !important;
+        }
+
+        .page:has(.inv-hero) .module-card {
+            color: #edf2ff !important;
+        }
+
+        .page:has(.inv-hero) .card-actions button {
+            min-height: 43px;
+        }
+
+        .page:has(.inv-hero) .inventory-tools input::placeholder {
+            color: #8998b1;
+        }
+
+        .page:has(.inv-hero) select option {
+            color: #edf2ff;
+            background: #111b2b;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+
+<body>
+<div class="page">
+
+    <!-- HEADER -->
+    <header class="module-header">
+        <div>
+            <p class="module-label">BLOOD MANAGEMENT</p>
+            <h1>Blood Inventory</h1>
+            <p>
+                Manage available blood units, components,
+                storage locations and expiry information.
+            </p>
+        </div>
+
+        <div class="theme-page-actions">
+            <a href="/" class="back-button">Dashboard</a>
+            <a href="/settings" class="back-button">Settings</a>
+        </div>
+    </header>
+
+    <!-- INVENTORY 3D ORBIT HERO -->
+    <section class="inv-hero" aria-label="Blood inventory overview">
+        <div class="inv-hero-copy">
+            <span class="inv-eyebrow"><span class="inv-live-dot"></span> INVENTORY CONTROL CENTER</span>
+            <h2>Every unit.<br><span>Every life.</span></h2>
+            <p>Track blood components, monitor expiry dates, and keep every unit accounted for.</p>
+            <div class="inv-hero-tags">
+                <span>WHOLE BLOOD</span><span>RBC</span><span>PLASMA</span><span>PLATELETS</span>
+            </div>
+        </div>
+        <div class="inv-orbit-art" aria-hidden="true">
+            <div class="inv-orbit inv-orbit-one"></div>
+            <div class="inv-orbit inv-orbit-two"></div>
+            <div class="inv-orbit inv-orbit-three"></div>
+            <div class="inv-drop-shadow"></div>
+            <div class="inv-drop">
+                <div class="inv-drop-shine"></div>
+                <div class="inv-drop-core"></div>
+            </div>
+            <span class="inv-orbit-label inv-label-rbc">RBC</span>
+            <span class="inv-orbit-label inv-label-plasma">PLASMA</span>
+            <span class="inv-orbit-label inv-label-platelets">PLT</span>
+        </div>
+        <div class="inv-hero-glow"></div>
+    </section>
+    <!-- MAIN CONTENT -->
+    <main class="module-content">
+        <div class="module-card">
+
+            <!-- CARD HEADER -->
+            <div class="card-heading">
+                <div>
+                    <h2>Blood Units</h2>
+                    <p>Blood inventory records retrieved from MySQL.</p>
+                </div>
+
+                <div class="card-actions">
+                    <button type="button"
+                            onclick="openAddBloodUnit()"
+                            class="add-donor-button">
+                        + Add Blood Unit
+                    </button>
+
+                    <button type="button"
+                            onclick="loadBloodUnits()"
+                            class="refresh-button">Refresh</button>
+                </div>
+            </div>
+
+            <!-- SUCCESS / ERROR MESSAGE -->
+            <div id="inventoryMessage"
+                 class="inventory-message"
+                 role="status"
+                 aria-live="polite"></div>
+
+            <!-- SEARCH AND FILTERS -->
+            <div class="inventory-tools">
+                <input type="search"
+                       id="inventorySearch"
+                       placeholder="Search inventory">
+
+                <select id="filterBloodGroup">
+                    <option value="">All Blood Groups</option>
+                    <option>A+</option>
+                    <option>A-</option>
+                    <option>B+</option>
+                    <option>B-</option>
+                    <option>AB+</option>
+                    <option>AB-</option>
+                    <option>O+</option>
+                    <option>O-</option>
+                </select>
+
+                <select id="filterStatus">
+                    <option value="">All Statuses</option>
+                    <option>Available</option>
+                    <option>Reserved</option>
+                    <option>Used</option>
+                    <option>Expired</option>
+                </select>
+
+                <select id="filterComponent">
+                    <option value="">All Components</option>
+                    <option>Whole Blood</option>
+                    <option>RBC</option>
+                    <option>Plasma</option>
+                    <option>Platelets</option>
+                </select>
+            </div>
+
+            <!-- ADD / EDIT BLOOD UNIT MODAL -->
+            <div id="bloodUnitModal"
+                 class="donor-modal"
+                 style="display:none;">
+
+                <div class="donor-modal-content">
+
+                    <div class="modal-header">
+                        <div>
+                            <h2 id="bloodUnitModalTitle">Add Blood Unit</h2>
+                            <p id="bloodUnitModalDescription">
+                                Register a new blood unit in inventory.
+                            </p>
+                        </div>
+
+                        <button type="button"
+                                class="close-modal"
+                                onclick="closeBloodUnitModal()"
+                                aria-label="Close">
+                            &#10005;
+                        </button>
+                    </div>
+
+                    <form id="bloodUnitForm">
+                        <input type="hidden" id="editingUnitId">
+
+                        <div class="form-grid">
+
+                            <!-- DONOR -->
+                            <div class="form-group">
+                                <label for="donorId">Donor *</label>
+                                <select id="donorId" required>
+                                    <option value="">Loading donors...</option>
+                                </select>
+                            </div>
+
+                            <!-- BLOOD GROUP -->
+                            <div class="form-group">
+                                <label for="bloodGroup">Blood Group *</label>
+                                <select id="bloodGroup" required>
+                                    <option value="">Select Blood Group</option>
+                                    <option value="1">A+</option>
+                                    <option value="2">A-</option>
+                                    <option value="3">B+</option>
+                                    <option value="4">B-</option>
+                                    <option value="5">AB+</option>
+                                    <option value="6">AB-</option>
+                                    <option value="7">O+</option>
+                                    <option value="8">O-</option>
+                                </select>
+                            </div>
+
+                            <!-- COMPONENT -->
+                            <div class="form-group">
+                                <label for="bloodComponent">
+                                    Blood Component *
+                                </label>
+                                <select id="bloodComponent" required>
+                                    <option value="">Select Component</option>
+                                    <option value="1">Whole Blood</option>
+                                    <option value="2">RBC</option>
+                                    <option value="3">Plasma</option>
+                                    <option value="4">Platelets</option>
+                                </select>
+                            </div>
+
+                            <!-- STORAGE LOCATION -->
+                            <div class="form-group">
+                                <label for="storageLocation">
+                                    Storage Location *
+                                </label>
+                                <select id="storageLocation" required>
+                                    <option value="">Loading locations...</option>
+                                </select>
+                            </div>
+
+                            <!-- QUANTITY -->
+                            <div class="form-group">
+                                <label for="quantityMl">Quantity (mL) *</label>
+                                <input type="number"
+                                       id="quantityMl"
+                                       min="1"
+                                       step="1"
+                                       placeholder="Enter quantity in mL"
+                                       required>
+                            </div>
+
+                            <!-- COLLECTION DATE -->
+                            <div class="form-group">
+                                <label for="collectionDate">
+                                    Collection Date *
+                                </label>
+                                <input type="date"
+                                       id="collectionDate"
+                                       required>
+                            </div>
+
+                            <!-- EXPIRY DATE -->
+                            <div class="form-group">
+                                <label for="expiryDate">Expiry Date *</label>
+                                <input type="date"
+                                       id="expiryDate"
+                                       required>
+                                <small class="form-hint">
+                                    Must be later than the collection date.
+                                </small>
+                            </div>
+
+                            <!-- STATUS -->
+                            <div class="form-group">
+                                <label for="bloodStatus">Status *</label>
+                                <select id="bloodStatus" required>
+                                    <option value="Available">Available</option>
+                                    <option value="Reserved">Reserved</option>
+                                    <option value="Used">Used</option>
+                                    <option value="Expired">Expired</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <!-- FORM BUTTONS -->
+                        <div class="form-actions">
+                            <button type="button"
+                                    class="cancel-button"
+                                    onclick="closeBloodUnitModal()">
+                                Cancel
+                            </button>
+
+                            <button type="submit"
+                                    id="saveBloodUnitButton"
+                                    class="save-donor-button">
+                                Save Blood Unit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- INVENTORY TABLE -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Blood Group</th>
+                            <th>Component</th>
+                            <th>Quantity</th>
+                            <th>Donor</th>
+                            <th>Storage Location</th>
+                            <th>Collection Date</th>
+                            <th>Expiry Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="bloodInventoryTable">
+                        <tr>
+                            <td colspan="10">Loading blood inventory...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+"use strict";
+
+let inventoryUnits = [];
+
+const $ = id => document.getElementById(id);
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+function showInventoryMessage(message, type = "success") {
+    const element = $("inventoryMessage");
+    element.textContent = message;
+    element.className = "inventory-message " + type;
+}
+
+function clearInventoryMessage() {
+    $("inventoryMessage").textContent = "";
+    $("inventoryMessage").className = "inventory-message";
+}
+
+async function readResponse(response) {
+    let data;
+
+    try {
+        data = await response.json();
+    } catch {
+        throw new Error("The server returned an invalid response. Check Flask.");
+    }
+
+    if (!response.ok || !data.success) {
+        throw new Error(data.error || "The request failed.");
+    }
+
+    return data;
+}
+
+/* LOAD DONORS AND REAL STORAGE LOCATIONS */
+async function loadInventoryOptions() {
+    const donorSelect = $("donorId");
+    const locationSelect = $("storageLocation");
+
+    try {
+        const response = await fetch("/api/inventory-options");
+        const data = await readResponse(response);
+
+        donorSelect.replaceChildren(new Option("Select Donor", ""));
+
+        (data.donors || []).forEach(donor => {
+            const option = new Option(
+                `${donor.name} (ID: ${donor.donor_id}) - ${donor.blood_group}`,
+                donor.donor_id
+            );
+
+            option.dataset.bloodGroupId = donor.blood_group_id;
+            donorSelect.add(option);
+        });
+
+        if (!(data.donors || []).length) {
+            donorSelect.replaceChildren(
+                new Option("No donors registered", "")
+            );
+        }
+
+        locationSelect.replaceChildren(
+            new Option("Select Storage Location", "")
+        );
+
+        (data.locations || []).forEach(location => {
+            const label =
+                `${location.location_name} - ${location.refrigerator_number} - Shelf ${location.shelf_number}`;
+
+            locationSelect.add(
+                new Option(label, location.location_id)
+            );
+        });
+
+        if (!(data.locations || []).length) {
+            locationSelect.replaceChildren(
+                new Option("No storage locations configured", "")
+            );
+        }
+
+    } catch (error) {
+        console.error(error);
+        donorSelect.replaceChildren(
+            new Option("Unable to load donors", "")
+        );
+        locationSelect.replaceChildren(
+            new Option("Unable to load locations", "")
+        );
+        showInventoryMessage(error.message, "error");
+    }
+}
+
+/* STATUS DISPLAY */
+function getStatusInfo(unit) {
+    const expiry = unit.expiry_date;
+
+    if (unit.status !== "Used" &&
+        unit.status !== "Reserved" &&
+        expiry) {
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const expiryDate = new Date(expiry + "T00:00:00");
+        const daysLeft = Math.ceil(
+            (expiryDate - today) / 86400000
+        );
+
+        if (daysLeft < 0) {
+            return {
+                label: "Expired",
+                className: "status-expired"
+            };
+        }
+
+        if (daysLeft <= 7 && unit.status === "Available") {
+            return {
+                label: "Expiring soon",
+                className: "status-available"
+            };
+        }
+    }
+
+    return {
+        label: unit.status || "Unknown",
+        className: "status-" +
+            String(unit.status || "unknown").toLowerCase()
+    };
+}
+
+/* DISPLAY TABLE AND APPLY FILTERS */
+function renderBloodUnits() {
+    const table = $("bloodInventoryTable");
+
+    const search = $("inventorySearch").value.trim().toLowerCase();
+    const group = $("filterBloodGroup").value;
+    const status = $("filterStatus").value;
+    const component = $("filterComponent").value;
+
+    const filtered = inventoryUnits.filter(unit => {
+        const statusInfo = getStatusInfo(unit);
+
+        const searchText = [
+            unit.unit_id,
+            unit.donor_name,
+            unit.blood_group,
+            unit.component_name,
+            unit.location_name,
+            unit.refrigerator_number,
+            unit.shelf_number,
+            unit.status
+        ].join(" ").toLowerCase();
+
+        return (!search || searchText.includes(search))
+            && (!group || unit.blood_group === group)
+            && (!status ||
+                unit.status === status ||
+                statusInfo.label === status)
+            && (!component || unit.component_name === component);
+    });
+
+    if (!filtered.length) {
+        const message = inventoryUnits.length
+            ? "No blood units match your search."
+            : "No blood units available.";
+
+        table.innerHTML =
+            `<tr><td colspan="10">${message}</td></tr>`;
+        return;
+    }
+
+    table.innerHTML = filtered.map(unit => {
+        const statusInfo = getStatusInfo(unit);
+
+        const location = unit.location_name
+            ? `${unit.location_name}, ${unit.refrigerator_number || ""}, Shelf ${unit.shelf_number || ""}`
+            : "Not assigned";
+
+        return `
+            <tr>
+                <td>${escapeHTML(unit.unit_id)}</td>
+
+                <td>
+                    <span class="blood-badge">
+                        ${escapeHTML(unit.blood_group)}
+                    </span>
+                </td>
+
+                <td>${escapeHTML(unit.component_name)}</td>
+                <td class="quantity-cell">
+                    ${escapeHTML(unit.quantity_ml)} mL
+                </td>
+                <td>${escapeHTML(unit.donor_name || "Unknown")}</td>
+                <td>${escapeHTML(location)}</td>
+                <td>${escapeHTML(unit.collection_date || "-")}</td>
+                <td>${escapeHTML(unit.expiry_date || "-")}</td>
+
+                <td>
+                    <span class="status-badge status-${escapeHTML(String(unit.status || "unknown").toLowerCase())}">
+                        ${escapeHTML(unit.status || "Unknown")}
+                    </span>
+                    ${statusInfo.label === "Expired" && unit.status !== "Expired"
+                        ? '<small class="form-hint">Expiry date has passed</small>'
+                        : statusInfo.label === "Expiring soon"
+                            ? '<small class="form-hint">Expiry date is approaching</small>'
+                            : ""}
+                </td>
+
+                <td>
+                    <button type="button"
+                            class="edit-donor-button"
+                            onclick="editBloodUnit(${Number(unit.unit_id)})">
+                        Edit
+                    </button>
+
+                    <button type="button"
+                            class="delete-donor-button"
+                            onclick="deleteBloodUnit(${Number(unit.unit_id)})">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+/* LOAD INVENTORY */
+async function loadBloodUnits() {
+    const table = $("bloodInventoryTable");
+
+    table.innerHTML =
+        '<tr><td colspan="10">Loading blood inventory...</td></tr>';
+
+    try {
+        const response = await fetch("/api/blood-units");
+        const data = await readResponse(response);
+
+        inventoryUnits = data.blood_units || [];
+        renderBloodUnits();
+
+    } catch (error) {
+        console.error(error);
+        table.innerHTML =
+            `<tr><td colspan="10">${escapeHTML(error.message)}</td></tr>`;
+    }
+}
+
+/* DATE LIMITS */
+function setDateConstraints() {
+    const collection = $("collectionDate");
+    const expiry = $("expiryDate");
+
+    const today = new Date();
+    const localToday =
+        `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+    collection.max = localToday;
+    expiry.min = collection.value || "";
+}
+
+/* OPEN ADD FORM */
+function openAddBloodUnit() {
+    clearInventoryMessage();
+
+    $("bloodUnitForm").reset();
+    $("editingUnitId").value = "";
+
+    $("bloodUnitModalTitle").textContent = "Add Blood Unit";
+    $("bloodUnitModalDescription").textContent =
+        "Register a new blood unit in inventory.";
+
+    $("saveBloodUnitButton").textContent = "Save Blood Unit";
+    $("bloodStatus").value = "Available";
+
+    $("bloodUnitModal").style.display = "flex";
+    setDateConstraints();
+}
+
+/* CLOSE FORM */
+function closeBloodUnitModal() {
+    $("bloodUnitModal").style.display = "none";
+}
+
+/* MATCH BLOOD GROUP TO SELECTED DONOR */
+$("donorId").addEventListener("change", event => {
+    const selected = event.target.selectedOptions[0];
+
+    if (selected && selected.dataset.bloodGroupId) {
+        $("bloodGroup").value = selected.dataset.bloodGroupId;
+    }
+});
+
+$("collectionDate").addEventListener("change", setDateConstraints);
+
+/* VALIDATE FORM */
+function validateInventoryForm() {
+    const collection = $("collectionDate").value;
+    const expiry = $("expiryDate").value;
+    const quantity = Number($("quantityMl").value);
+
+    if (!$("donorId").value) {
+        return "Please select a donor.";
+    }
+
+    if (!$("bloodGroup").value) {
+        return "Please select a blood group.";
+    }
+
+    if (!$("bloodComponent").value) {
+        return "Please select a blood component.";
+    }
+
+    if (!$("storageLocation").value) {
+        return "Please select a storage location.";
+    }
+
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+        return "Quantity must be a whole number greater than zero.";
+    }
+
+    if (!collection || !expiry) {
+        return "Please enter both collection and expiry dates.";
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (new Date(collection + "T00:00:00") > today) {
+        return "Collection date cannot be in the future.";
+    }
+
+    if (expiry <= collection) {
+        return "Expiry date must be later than the collection date.";
+    }
+
+    return null;
+}
+
+/* ADD OR UPDATE BLOOD UNIT */
+$("bloodUnitForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    clearInventoryMessage();
+
+    const validationError = validateInventoryForm();
+
+    if (validationError) {
+        showInventoryMessage(validationError, "error");
+        return;
+    }
+
+    const unitId = $("editingUnitId").value;
+
+    const payload = {
+        donor_id: $("donorId").value,
+        blood_group_id: $("bloodGroup").value,
+        component_id: $("bloodComponent").value,
+        location_id: $("storageLocation").value,
+        collection_date: $("collectionDate").value,
+        expiry_date: $("expiryDate").value,
+        quantity_ml: $("quantityMl").value,
+        status: $("bloodStatus").value
+    };
+
+    const button = $("saveBloodUnitButton");
+    button.disabled = true;
+    button.textContent = unitId ? "Updating..." : "Saving...";
+
+    try {
+        const response = await fetch(
+            unitId
+                ? `/api/blood-units/${unitId}`
+                : "/api/blood-units",
+            {
+                method: unitId ? "PUT" : "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            }
+        );
+
+        const result = await readResponse(response);
+
+        closeBloodUnitModal();
+        showInventoryMessage(
+            result.message || "Blood unit saved successfully.",
+            "success"
+        );
+
+        await loadBloodUnits();
+
+    } catch (error) {
+        console.error(error);
+        showInventoryMessage(error.message, "error");
+
+    } finally {
+        button.disabled = false;
+        button.textContent = $("editingUnitId").value
+            ? "Update Blood Unit"
+            : "Save Blood Unit";
+    }
+});
+
+/* EDIT BLOOD UNIT */
+async function editBloodUnit(unitId) {
+    clearInventoryMessage();
+
+    try {
+        const response = await fetch(`/api/blood-units/${unitId}`);
+        const result = await readResponse(response);
+        const unit = result.blood_unit;
+
+        $("bloodUnitForm").reset();
+        $("editingUnitId").value = unit.unit_id;
+
+        $("bloodUnitModalTitle").textContent = "Edit Blood Unit";
+        $("bloodUnitModalDescription").textContent =
+            `Update inventory unit #${unit.unit_id}.`;
+
+        $("saveBloodUnitButton").textContent = "Update Blood Unit";
+
+        $("donorId").value = String(unit.donor_id);
+        $("bloodGroup").value = String(unit.blood_group_id);
+        $("bloodComponent").value = String(unit.component_id);
+
+        $("storageLocation").value =
+            unit.location_id == null ? "" : String(unit.location_id);
+
+        $("collectionDate").value = unit.collection_date || "";
+        $("expiryDate").value = unit.expiry_date || "";
+        $("quantityMl").value = unit.quantity_ml;
+        $("bloodStatus").value = unit.status || "Available";
+
+        $("bloodUnitModal").style.display = "flex";
+        setDateConstraints();
+
+    } catch (error) {
+        console.error(error);
+        showInventoryMessage(error.message, "error");
+    }
+}
+
+/* DELETE BLOOD UNIT */
+async function deleteBloodUnit(unitId) {
+    const confirmed = confirm(
+        `Delete blood unit #${unitId} from inventory?`
+    );
+
+    if (!confirmed) return;
+
+    clearInventoryMessage();
+
+    try {
+        const response = await fetch(`/api/blood-units/${unitId}`, {
+            method: "DELETE"
+        });
+
+        const result = await readResponse(response);
+
+        showInventoryMessage(
+            result.message || "Blood unit deleted successfully.",
+            "success"
+        );
+
+        await loadBloodUnits();
+
+    } catch (error) {
+        console.error(error);
+        showInventoryMessage(error.message, "error");
+    }
+}
+
+/* SEARCH AND FILTER EVENTS */
+["inventorySearch", "filterBloodGroup", "filterStatus", "filterComponent"]
+    .forEach(id => {
+        $(id).addEventListener("input", renderBloodUnits);
+        $(id).addEventListener("change", renderBloodUnits);
+    });
+
+/* INITIAL PAGE LOAD */
+document.addEventListener("DOMContentLoaded", async () => {
+    await Promise.all([
+        loadInventoryOptions(),
+        loadBloodUnits()
+    ]);
+});
+</script>
+
+</body>
+</html>
+
+

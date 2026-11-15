@@ -1,0 +1,1146 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+
+    <title>Donors | BloodCare</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+    <style id="donors-3d-redesign">
+        /* DONORS DNA EXPERIENCE */
+        html:has(.donor-hero), body:has(.donor-hero) {
+            min-height: 100%;
+            background: #070b14 !important;
+            color: #edf2ff;
+        }
+
+        body:has(.donor-hero) {
+            background-image:
+                radial-gradient(ellipse at 80% 12%, rgba(106,44,137,.18), transparent 36%),
+                radial-gradient(ellipse at 8% 48%, rgba(0,178,185,.09), transparent 34%) !important;
+        }
+
+        .page:has(.donor-hero) {
+            max-width: 1600px;
+            min-height: 100vh;
+            margin-inline: auto;
+            padding: 24px clamp(14px, 2.4vw, 36px) 48px;
+            background: transparent !important;
+            color: #edf2ff;
+        }
+
+        .page:has(.donor-hero) .module-header {
+            padding: 10px 4px 18px;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .page:has(.donor-hero) .module-label {
+            color: #81e5df;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .page:has(.donor-hero) .module-header h1 {
+            color: #f7f8ff;
+            letter-spacing: -.8px;
+        }
+
+        .page:has(.donor-hero) .module-header p:not(.module-label) {
+            color: #aebbd0;
+        }
+
+        .page:has(.donor-hero) .back-button {
+            color: #f8faff !important;
+            background: #172337 !important;
+            border: 1px solid rgba(255,255,255,.12) !important;
+        }
+
+        .donor-hero {
+            position: relative;
+            isolation: isolate;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            min-height: 310px;
+            margin: 12px 0 28px;
+            padding: 32px clamp(22px, 3vw, 46px);
+            overflow: hidden;
+            border: 1px solid rgba(112,218,218,.24);
+            border-radius: 27px;
+            background:
+                radial-gradient(ellipse at 76% 50%, rgba(17,198,184,.14), transparent 35%),
+                linear-gradient(115deg, rgba(12,35,48,.98), rgba(20,23,45,.98) 55%, rgba(35,17,46,.98));
+            box-shadow: 0 22px 65px rgba(0,0,0,.23), inset 0 1px rgba(255,255,255,.06);
+        }
+
+        .donor-hero::before {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            inset: 0;
+            opacity: .18;
+            background-image: radial-gradient(rgba(255,255,255,.7) .8px, transparent .8px);
+            background-size: 24px 24px;
+            mask-image: linear-gradient(90deg, transparent, black);
+            pointer-events: none;
+        }
+
+        .donor-hero-copy {
+            position: relative;
+            z-index: 3;
+            max-width: 530px;
+        }
+
+        .donor-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: #8de8df;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .donor-live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4bf0b5;
+            box-shadow: 0 0 13px #4bf0b5;
+            animation: donorPulse 1.8s infinite;
+        }
+
+        .donor-hero-copy h2 {
+            margin: 17px 0 10px;
+            color: #f8faff;
+            font-size: clamp(32px, 4vw, 49px);
+            line-height: 1.07;
+            letter-spacing: -1.7px;
+        }
+
+        .donor-hero-copy h2 span {
+            color: #71e4dc;
+            text-shadow: 0 0 28px rgba(62,222,210,.2);
+        }
+
+        .donor-hero-copy p {
+            max-width: 440px;
+            color: #bac7d9;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .donor-hero-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 19px 0;
+        }
+
+        .donor-hero-tags span {
+            padding: 7px 10px;
+            border: 1px solid rgba(255,255,255,.13);
+            border-radius: 999px;
+            background: rgba(255,255,255,.055);
+            color: #d9f4f1;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .7px;
+        }
+
+        .donor-hero-cta {
+            padding: 11px 16px;
+            border: 1px solid rgba(107,232,219,.4);
+            border-radius: 10px;
+            background: linear-gradient(135deg, #176d72, #17485d);
+            color: white;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0,180,170,.15);
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .donor-hero-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 13px 28px rgba(0,180,170,.25);
+        }
+
+        .donor-dna-stage {
+            position: relative;
+            flex: 0 0 clamp(235px, 32%, 390px);
+            height: 270px;
+            perspective: 900px;
+            transform-style: preserve-3d;
+        }
+
+        .donor-shield {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 116px;
+            height: 132px;
+            margin: -66px 0 0 -58px;
+            clip-path: polygon(50% 0, 94% 17%, 88% 66%, 72% 85%, 50% 100%, 28% 85%, 12% 66%, 6% 17%);
+            background: linear-gradient(140deg, #b6fff2, #34c7c3 35%, #186a8c 72%, #16314d);
+            filter: drop-shadow(0 0 20px rgba(62,224,214,.32));
+            animation: donorShieldFloat 4s ease-in-out infinite;
+            transform-style: preserve-3d;
+        }
+
+        .donor-shield-inner {
+            position: absolute;
+            inset: 5px;
+            clip-path: polygon(50% 0, 94% 17%, 88% 66%, 72% 85%, 50% 100%, 28% 85%, 12% 66%, 6% 17%);
+            background: linear-gradient(145deg, rgba(15,55,73,.95), rgba(24,27,55,.96));
+            box-shadow: inset 0 0 24px rgba(74,237,218,.2);
+        }
+
+        .donor-shield-cross {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 43px;
+            height: 43px;
+            transform: translate(-50%,-50%);
+        }
+
+        .donor-shield-cross::before, .donor-shield-cross::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-radius: 5px;
+            background: linear-gradient(135deg, #c8fff3, #55dcd2);
+            box-shadow: 0 0 15px rgba(79,239,222,.35);
+            transform: translate(-50%,-50%);
+        }
+
+        .donor-shield-cross::before { width: 40px; height: 12px; }
+        .donor-shield-cross::after { width: 12px; height: 40px; }
+
+        .donor-dna {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 76px;
+            height: 235px;
+            margin: -117px 0 0 -38px;
+            transform-style: preserve-3d;
+            animation: donorDnaSpin 9s linear infinite;
+        }
+
+        .donor-dna span {
+            position: absolute;
+            left: 50%;
+            top: calc(var(--i, 0) * 8.1%);
+            width: 70px;
+            height: 5px;
+            margin-left: -35px;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #5de8dc, #b6fff4 48%, #ff7fb3);
+            box-shadow: 0 0 8px rgba(91,228,219,.45);
+            transform: rotateY(calc(var(--i, 0) * 45deg)) translateZ(22px);
+        }
+
+        .donor-dna span:nth-child(1)  { --i: 0; }
+        .donor-dna span:nth-child(2)  { --i: 1; }
+        .donor-dna span:nth-child(3)  { --i: 2; }
+        .donor-dna span:nth-child(4)  { --i: 3; }
+        .donor-dna span:nth-child(5)  { --i: 4; }
+        .donor-dna span:nth-child(6)  { --i: 5; }
+        .donor-dna span:nth-child(7)  { --i: 6; }
+        .donor-dna span:nth-child(8)  { --i: 7; }
+        .donor-dna span:nth-child(9)  { --i: 8; }
+        .donor-dna span:nth-child(10) { --i: 9; }
+        .donor-dna span:nth-child(11) { --i: 10; }
+        .donor-dna span:nth-child(12) { --i: 11; }
+
+        .donor-dna-orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 1px solid rgba(100,233,221,.42);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .donor-dna-orbit-a {
+            width: 230px;
+            height: 230px;
+            margin: -115px 0 0 -115px;
+            transform: rotateX(68deg) rotateZ(-24deg);
+            animation: donorOrbit 16s linear infinite;
+        }
+
+        .donor-dna-orbit-b {
+            width: 195px;
+            height: 195px;
+            margin: -97px 0 0 -97px;
+            border-color: rgba(255,127,179,.45);
+            transform: rotateY(65deg) rotateX(30deg);
+            animation: donorOrbit 12s linear infinite reverse;
+        }
+
+        .donor-float-label {
+            position: absolute;
+            z-index: 4;
+            padding: 7px 9px;
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 9px;
+            background: rgba(11,20,35,.82);
+            color: #e9fffc;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .7px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.2);
+            backdrop-filter: blur(12px);
+        }
+
+        .donor-label-a { top: 22px; left: 0; }
+        .donor-label-b { top: 45%; right: 0; color: #ff9dc5; }
+        .donor-label-c { bottom: 18px; left: 14%; color: #86eee2; }
+
+        .donor-hero-glow {
+            position: absolute;
+            z-index: -1;
+            right: 13%;
+            top: 14%;
+            width: 190px;
+            height: 190px;
+            border-radius: 50%;
+            background: rgba(32,200,190,.14);
+            filter: blur(55px);
+            pointer-events: none;
+        }
+
+        .page:has(.donor-hero) .module-content {
+            color: #edf2ff;
+        }
+
+        .page:has(.donor-hero) .module-card {
+            overflow: hidden;
+            border: 1px solid rgba(172,187,225,.17);
+            border-radius: 23px;
+            background: linear-gradient(145deg, rgba(18,28,44,.97), rgba(13,17,31,.98));
+            color: #edf2ff;
+            box-shadow: 0 18px 50px rgba(0,0,0,.19), inset 0 1px rgba(255,255,255,.04);
+        }
+
+        .page:has(.donor-hero) .card-heading {
+            gap: 16px;
+            flex-wrap: wrap;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        .page:has(.donor-hero) .card-heading h2 { color: #f8faff; }
+        .page:has(.donor-hero) .card-heading p { color: #aebbd0; }
+
+        .page:has(.donor-hero) .table-container {
+            overflow-x: auto;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 15px;
+        }
+
+        .page:has(.donor-hero) table {
+            min-width: 900px;
+            border-collapse: separate;
+            border-spacing: 0;
+            color: #dce4f4;
+        }
+
+        .page:has(.donor-hero) table thead th {
+            padding: 15px 13px;
+            border-bottom: 1px solid rgba(255,255,255,.12);
+            background: #172236;
+            color: #9cebe2;
+            font-size: 10px;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .page:has(.donor-hero) table tbody td {
+            padding: 14px 13px;
+            border-bottom: 1px solid rgba(255,255,255,.055);
+            background: rgba(255,255,255,.012);
+            color: #cbd5e7;
+            font-size: 12px;
+        }
+
+        .page:has(.donor-hero) table tbody tr:hover td {
+            background: rgba(77,203,195,.075);
+            color: #fff;
+        }
+
+        .page:has(.donor-hero) .blood-badge {
+            padding: 5px 8px;
+            border: 1px solid rgba(90,227,216,.23);
+            border-radius: 8px;
+            background: rgba(41,191,179,.12);
+            color: #8ceee3;
+            font-weight: 800;
+        }
+
+        .page:has(.donor-hero) .status-badge {
+            display: inline-block;
+            padding: 5px 8px;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 999px;
+            background: rgba(42,202,142,.12);
+            color: #78edb8;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .page:has(.donor-hero) .donor-modal-content {
+            border: 1px solid rgba(119,219,216,.22);
+            border-radius: 20px;
+            background: #101a2a;
+            color: #eef3ff;
+            box-shadow: 0 25px 80px rgba(0,0,0,.5);
+        }
+
+        .page:has(.donor-hero) .donor-modal-content h2,
+        .page:has(.donor-hero) .donor-modal-content label {
+            color: #f0f5ff;
+        }
+
+        .page:has(.donor-hero) .donor-modal-content p {
+            color: #aab9d0;
+        }
+
+        .page:has(.donor-hero) .donor-modal-content input,
+        .page:has(.donor-hero) .donor-modal-content select,
+        .page:has(.donor-hero) .donor-modal-content textarea {
+            background: #0c1422;
+            color: #edf2ff;
+            border-color: rgba(173,195,226,.2);
+        }
+
+        .page:has(.donor-hero) .donor-modal-content input:focus,
+        .page:has(.donor-hero) .donor-modal-content select:focus,
+        .page:has(.donor-hero) .donor-modal-content textarea:focus {
+            border-color: #65ded4;
+            outline: 2px solid rgba(101,222,212,.13);
+        }
+
+        @keyframes donorPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .45; }
+        }
+
+        @keyframes donorShieldFloat {
+            0%, 100% { translate: 0 0; rotate: -3deg; }
+            50% { translate: 0 -9px; rotate: 3deg; }
+        }
+
+        @keyframes donorDnaSpin {
+            from { transform: rotateY(0deg) rotateX(-7deg); }
+            to { transform: rotateY(360deg) rotateX(-7deg); }
+        }
+
+        @keyframes donorOrbit {
+            from { rotate: 0deg; }
+            to { rotate: 360deg; }
+        }
+
+        @media (max-width: 760px) {
+            .donor-hero {
+                min-height: 0;
+                padding: 26px 22px 10px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .donor-dna-stage {
+                flex-basis: auto;
+                width: 100%;
+                height: 220px;
+            }
+
+            .donor-hero-copy h2 { font-size: 36px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .donor-live-dot, .donor-shield, .donor-dna,
+            .donor-dna-orbit {
+                animation: none !important;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+
+<body>
+
+    <div class="page">
+
+        <header class="module-header">
+
+            <div>
+                <p class="module-label">BLOOD MANAGEMENT</p>
+
+                <h1>Donor Management</h1>
+
+                <p>
+                    Manage registered blood donors and their eligibility.
+                </p>
+            </div>
+
+            <div class="theme-page-actions">
+                <a href="/" class="back-button">Dashboard</a>
+                <a href="/settings" class="back-button">Settings</a>
+            </div>
+
+        </header>
+
+
+                <!-- DONORS DNA EXPERIENCE -->
+        <section class="donor-hero" aria-label="Donor management introduction">
+            <div class="donor-hero-copy">
+                <span class="donor-eyebrow"><span class="donor-live-dot"></span> DONOR CARE NETWORK</span>
+                <h2>One donor.<br><span>A world of hope.</span></h2>
+                <p>Every donor is a chance to save a life. Manage donor profiles and eligibility from one place.</p>
+                <div class="donor-hero-tags">
+                    <span>DONOR PROFILES</span>
+                    <span>ELIGIBILITY</span>
+                    <span>BLOOD GROUPS</span>
+                </div>
+                <button type="button" class="donor-hero-cta" onclick="openAddDonor()">+ Register a donor</button>
+            </div>
+            <div class="donor-dna-stage" aria-hidden="true">
+                <div class="donor-shield">
+                    <div class="donor-shield-inner">
+                        <div class="donor-shield-cross"></div>
+                    </div>
+                </div>
+                <div class="donor-dna">
+                    <span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span>
+                </div>
+                <div class="donor-dna-orbit donor-dna-orbit-a"></div>
+                <div class="donor-dna-orbit donor-dna-orbit-b"></div>
+                <span class="donor-float-label donor-label-a">DONOR DNA</span>
+                <span class="donor-float-label donor-label-b">LIFE LINK</span>
+                <span class="donor-float-label donor-label-c">CARE +</span>
+            </div>
+            <div class="donor-hero-glow"></div>
+        </section>
+            <main class="module-content">
+            <div id="addDonorModal" class="donor-modal">
+
+    <div class="donor-modal-content">
+
+        <div class="modal-header">
+
+            <div>
+                <h2>Add New Donor</h2>
+                <p>Register a new blood donor</p>
+            </div>
+
+            <button type="button"
+                    class="close-modal"
+                    onclick="closeAddDonor()">
+                &#10005;
+            </button>
+
+        </div>
+
+
+        <form id="donorForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Full Name *</label>
+
+                    <input
+                        type="text"
+                        id="donorName"
+                        placeholder="Enter donor name"
+                        required>
+                </div>
+
+
+                <div class="form-group">
+                    <label>Age *</label>
+
+                    <input
+                        type="number"
+                        id="donorAge"
+                        placeholder="Enter age"
+                        min="18"
+                        max="65"
+                        required>
+                </div>
+
+
+                <div class="form-group">
+                    <label>Gender</label>
+
+                    <select id="donorGender">
+
+                        <option value="">
+                            Select Gender
+                        </option>
+
+                        <option value="Male">
+                            Male
+                        </option>
+
+                        <option value="Female">
+                            Female
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+                </div>
+
+
+                <div class="form-group">
+                    <label>Blood Group *</label>
+
+                    <select id="donorBloodGroup" required>
+
+                        <option value="">
+                            Select Blood Group
+                        </option>
+
+                        <option value="1">A+</option>
+                        <option value="2">A-</option>
+                        <option value="3">B+</option>
+                        <option value="4">B-</option>
+                        <option value="5">AB+</option>
+                        <option value="6">AB-</option>
+                        <option value="7">O+</option>
+                        <option value="8">O-</option>
+
+                    </select>
+                </div>
+
+
+                <div class="form-group">
+                    <label>Phone *</label>
+
+                    <input
+                        type="tel"
+                        id="donorPhone"
+                        placeholder="Enter phone number"
+                        required>
+                </div>
+
+
+                <div class="form-group">
+                    <label>Email</label>
+
+                    <input
+                        type="email"
+                        id="donorEmail"
+                        placeholder="Enter email address">
+                </div>
+
+
+                <div class="form-group full-width">
+                    <label>Address</label>
+
+                    <textarea
+                        id="donorAddress"
+                        placeholder="Enter donor address"
+                        rows="3"></textarea>
+                </div>
+
+
+                <div class="form-group">
+                    <label>Last Donation Date</label>
+
+                    <input
+                        type="date"
+                        id="lastDonationDate">
+                </div>
+
+
+                <div class="form-group">
+                    <label>Eligibility Status</label>
+
+                    <select id="eligibilityStatus">
+
+                        <option value="Eligible">
+                            Eligible
+                        </option>
+
+                        <option value="Not Eligible">
+                            Not Eligible
+                        </option>
+
+                    </select>
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="cancel-button"
+                    onclick="closeAddDonor()">
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="save-donor-button">
+                    Save Donor
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+            <div class="module-card">
+
+                <div class="card-heading">
+                    <div>
+                        <h2>Registered Donors</h2>
+                        <p>
+                             Donor information retrieved from MySQL.
+                        </p>
+                    </div>
+                    <div class="card-actions">
+                        <button onclick="openAddDonor()" class="add-donor-button">
+                             + Add New Donor
+                        </button>
+                        <button onclick="loadDonors()" class="refresh-button">Refresh</button>
+                    </div>
+                
+                </div>  
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Blood Group</th>
+                                <th>Phone</th>
+                                <th>Last Donation</th>
+                                <th>Eligibility</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="donorTable">
+
+                            <tr>
+                                <td colspan="9">
+                                    Loading donors...
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+<script>
+    async function deleteDonor(donorId) {
+
+    const confirmed = confirm(
+        "Are you sure you want to delete this donor?"
+    );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            `/api/donors/${donorId}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+
+        const result = await response.json();
+
+
+        if (result.success) {
+
+            alert("Donor deleted successfully!");
+
+            loadDonors();
+
+        }
+
+        else {
+
+            alert(
+                "Unable to delete donor: " +
+                result.error
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        alert("Unable to connect to the server.");
+
+    }
+
+}
+    function openAddDonor() {
+
+    const modal = document.getElementById("addDonorModal");
+
+    modal.style.display = "flex";
+}
+
+async function editDonor(donorId) {
+    editingDonorId = donorId;
+
+    try {
+
+        const response = await fetch(`/api/donors/${donorId}`);
+
+        const result = await response.json();
+
+        if (!result.success) {
+
+            alert("Unable to load donor: " + result.error);
+
+            return;
+        }
+
+        const donor = result.donor;
+
+
+        document.getElementById("donorName").value =
+            donor.name || "";
+
+        document.getElementById("donorAge").value =
+            donor.age || "";
+
+        document.getElementById("donorGender").value =
+            donor.gender || "";
+
+        document.getElementById("donorBloodGroup").value =
+            donor.blood_group_id || "";
+
+        document.getElementById("donorPhone").value =
+            donor.phone || "";
+
+        document.getElementById("donorEmail").value =
+            donor.email || "";
+
+        document.getElementById("donorAddress").value =
+            donor.address || "";
+
+        document.getElementById("eligibilityStatus").value =
+            donor.eligibility_status || "Eligible";
+
+
+        if (donor.last_donation_date) {
+
+            document.getElementById("lastDonationDate").value =
+                String(donor.last_donation_date).substring(0, 10);
+
+        } else {
+
+            document.getElementById("lastDonationDate").value = "";
+
+        }
+
+
+        openAddDonor();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        alert("Unable to connect to the server.");
+
+    }
+
+}
+function closeAddDonor() {
+
+    const modal = document.getElementById("addDonorModal");
+
+    modal.style.display = "none";
+}
+
+async function loadDonors() {
+
+    const table = document.getElementById("donorTable");
+
+    table.innerHTML = `
+        <tr>
+            <td colspan="9">Loading donors...</td>
+        </tr>
+    `;
+
+    try {
+
+        const response = await fetch("/api/donors");
+
+        const data = await response.json();
+
+        if (!data.success) {
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="9">
+                        Error loading donors
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+
+        if (data.donors.length === 0) {
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="9">
+                        No donors registered yet.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+
+        table.innerHTML = "";
+
+
+        data.donors.forEach(donor => {
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td>${donor.donor_id}</td>
+
+                    <td>${donor.name}</td>
+
+                    <td>${donor.age}</td>
+
+                    <td>${donor.gender || "-"}</td>
+
+                    <td>
+                        <span class="blood-badge">
+                            ${donor.blood_group}
+                        </span>
+                    </td>
+
+                    <td>${donor.phone}</td>
+
+                    <td>
+                        ${donor.last_donation_date || "-"}
+                    </td>
+
+                    <td>
+                        <span class="status-badge">
+                            ${donor.eligibility_status}
+                        </span>
+                    </td>
+
+                    <td>
+                        <button
+                        class="edit-donor-button"
+                        onclick="editDonor(${donor.donor_id})">
+                        Edit
+                        </button>
+                        
+                        <button
+                        class="delete-donor-button"
+                        onclick="deleteDonor(${donor.donor_id})">
+                        Delete
+                        </button>
+                    </td>
+                </tr>
+
+            `;
+
+        });
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="9">
+                    Unable to connect to server.
+                </td>
+            </tr>
+        `;
+    }
+}
+let editingDonorId = null;
+
+
+document.getElementById("donorForm").addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+
+    const donorData = {
+
+        name: document.getElementById("donorName").value,
+
+        age: document.getElementById("donorAge").value,
+
+        gender: document.getElementById("donorGender").value,
+
+        blood_group_id:
+            document.getElementById("donorBloodGroup").value,
+
+        phone:
+            document.getElementById("donorPhone").value,
+
+        email:
+            document.getElementById("donorEmail").value,
+
+        address:
+            document.getElementById("donorAddress").value,
+
+        last_donation_date:
+            document.getElementById("lastDonationDate").value,
+
+        eligibility_status:
+            document.getElementById("eligibilityStatus").value
+
+    };
+
+
+    try {
+
+        let url;
+        let method;
+
+
+        if (editingDonorId !== null) {
+
+            url = `/api/donors/${editingDonorId}`;
+
+            method = "PUT";
+
+        }
+
+        else {
+
+            url = "/api/donors/add";
+
+            method = "POST";
+
+        }
+
+
+        const response = await fetch(url, {
+
+            method: method,
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(donorData)
+
+        });
+
+
+        const result = await response.json();
+
+
+        if (result.success) {
+
+            alert(
+                editingDonorId !== null
+                    ? "Donor updated successfully!"
+                    : "Donor added successfully!"
+            );
+
+
+            closeAddDonor();
+
+            document.getElementById("donorForm").reset();
+
+            editingDonorId = null;
+
+            loadDonors();
+
+        }
+
+        else {
+
+            alert("Error: " + result.error);
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        alert("Unable to connect to the server.");
+
+    }
+
+});
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadDonors
+);
+
+</script>
+
+</body>
+</html>
+

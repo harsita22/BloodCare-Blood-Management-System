@@ -1,0 +1,1139 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <title>Reservations | BloodCare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .reservations-page { padding: 28px; max-width: 1500px; margin: auto; }
+        .res-header { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:24px; }
+        .res-header h1 { margin:0 0 8px; }
+        .res-header p { margin:0; color:#718096; }
+        .res-button { border:0; border-radius:9px; padding:11px 16px; cursor:pointer; font-weight:600; background:#a71930; color:white; }
+        .res-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin-bottom:24px; }
+        .res-stat { background:white; border:1px solid #e8edf2; border-radius:14px; padding:22px; box-shadow:0 3px 12px #18223008; }
+        .res-stat span { display:block; color:#718096; font-size:14px; margin-bottom:10px; }
+        .res-stat strong { font-size:28px; color:#243247; }
+        .res-panel { background:white; border:1px solid #e8edf2; border-radius:14px; overflow:hidden; }
+        .res-panel-head { padding:20px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; border-bottom:1px solid #edf0f4; }
+        .res-panel-head h2 { margin:0; font-size:19px; }
+        .res-search { padding:10px 12px; border:1px solid #dbe2ea; border-radius:8px; min-width:220px; }
+        .res-table-wrap { overflow-x:auto; }
+        .res-table { width:100%; border-collapse:collapse; min-width:1000px; }
+        .res-table th,.res-table td { text-align:left; padding:15px 16px; border-bottom:1px solid #edf0f4; font-size:13px; }
+        .res-table th { background:#f8fafc; color:#657286; font-weight:700; }
+        .res-table td { color:#334155; }
+        .res-status { display:inline-block; padding:5px 9px; border-radius:20px; background:#e7f7ed; color:#187443; font-weight:700; font-size:12px; }
+        .res-status.other { background:#eef2f7; color:#536174; }
+        .res-message { padding:24px; color:#64748b; text-align:center; }
+        @media(max-width:700px) { .reservations-page {padding:16px;} .res-stats {grid-template-columns:1fr;} .res-search {min-width:0;width:100%;} }
+    </style>
+    <style id="reservations-orbit-redesign">
+        /* BLOODCARE RESERVATION ORBIT */
+        html:has(.reservations-page),
+        body:has(.reservations-page) {
+            min-height: 100%;
+            background: #070b14 !important;
+            color: #edf2ff !important;
+        }
+
+        body:has(.reservations-page) {
+            background-image:
+                radial-gradient(ellipse at 78% 12%, rgba(112,43,130,.18), transparent 36%),
+                radial-gradient(ellipse at 8% 48%, rgba(0,172,183,.09), transparent 34%) !important;
+        }
+
+        .reservations-page {
+            color: #edf2ff !important;
+        }
+
+        .reservations-page .res-header {
+            padding: 8px 2px 4px;
+        }
+
+        .reservations-page .res-header h1 {
+            color: #f8faff !important;
+            font-size: clamp(30px, 3vw, 40px);
+            letter-spacing: -1px;
+        }
+
+        .reservations-page .res-header p {
+            color: #aebbd0 !important;
+            line-height: 1.7;
+        }
+
+        .reservations-page .res-button {
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 10px;
+            padding: 11px 16px;
+            background: linear-gradient(135deg, #a82c53, #702747);
+            color: #fff;
+            box-shadow: 0 7px 20px rgba(167,25,70,.16);
+            transition: transform .2s, filter .2s, box-shadow .2s;
+        }
+
+        .reservations-page .res-button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+            box-shadow: 0 10px 25px rgba(167,25,70,.25);
+        }
+
+        .reservations-page .res-hero {
+            position: relative;
+            isolation: isolate;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            min-height: 300px;
+            margin: 12px 0 26px;
+            padding: 30px clamp(22px, 3vw, 44px);
+            overflow: hidden;
+            border: 1px solid rgba(180,112,229,.23);
+            border-radius: 26px;
+            background:
+                radial-gradient(ellipse at 78% 52%, rgba(144,52,170,.17), transparent 35%),
+                linear-gradient(115deg, rgba(12,34,48,.98), rgba(24,20,46,.98) 60%, rgba(42,17,43,.98));
+            box-shadow: 0 22px 60px rgba(0,0,0,.23), inset 0 1px rgba(255,255,255,.05);
+        }
+
+        .reservations-page .res-hero::before {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            inset: 0;
+            opacity: .16;
+            background-image: radial-gradient(rgba(255,255,255,.7) .8px, transparent .8px);
+            background-size: 24px 24px;
+            mask-image: linear-gradient(90deg, transparent, black);
+            pointer-events: none;
+        }
+
+        .reservations-page .res-hero-copy {
+            position: relative;
+            z-index: 3;
+            max-width: 540px;
+        }
+
+        .reservations-page .res-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: #c7a0ff;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.8px;
+        }
+
+        .reservations-page .res-live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #9d80ff;
+            box-shadow: 0 0 14px #9d80ff;
+            animation: resPulse 1.8s infinite;
+        }
+
+        .reservations-page .res-hero-copy h2 {
+            margin: 17px 0 10px;
+            color: #f8faff;
+            font-size: clamp(31px, 3.8vw, 47px);
+            line-height: 1.08;
+            letter-spacing: -1.5px;
+        }
+
+        .reservations-page .res-hero-copy h2 span {
+            color: #c49aff;
+            text-shadow: 0 0 28px rgba(174,111,255,.2);
+        }
+
+        .reservations-page .res-hero-copy p {
+            max-width: 460px;
+            margin: 0;
+            color: #bac6d9;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .reservations-page .res-hero-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .reservations-page .res-hero-tags span {
+            padding: 7px 10px;
+            border: 1px solid rgba(255,255,255,.13);
+            border-radius: 999px;
+            background: rgba(255,255,255,.05);
+            color: #e5d8ff;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .65px;
+        }
+
+        .reservations-page .res-orbit-stage {
+            position: relative;
+            flex: 0 0 clamp(230px, 32%, 390px);
+            height: 270px;
+            perspective: 900px;
+            transform-style: preserve-3d;
+        }
+
+        .reservations-page .res-orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 1px solid rgba(192,146,255,.48);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .reservations-page .res-orbit-one {
+            width: 230px;
+            height: 230px;
+            margin: -115px 0 0 -115px;
+            transform: rotateX(67deg) rotateZ(-23deg);
+            animation: resOrbitSpin 15s linear infinite;
+        }
+
+        .reservations-page .res-orbit-two {
+            width: 194px;
+            height: 194px;
+            margin: -97px 0 0 -97px;
+            border-color: rgba(94,227,215,.6);
+            transform: rotateY(65deg) rotateX(30deg);
+            animation: resOrbitSpin 11s linear infinite reverse;
+        }
+
+        .reservations-page .res-orbit-three {
+            width: 164px;
+            height: 164px;
+            margin: -82px 0 0 -82px;
+            border-color: rgba(255,124,176,.42);
+            transform: rotateX(35deg) rotateY(50deg);
+            animation: resOrbitSpin 18s linear infinite;
+        }
+
+        .reservations-page .res-bag {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 132px;
+            margin: -66px 0 0 -50px;
+            overflow: visible;
+            border: 2px solid rgba(202,170,255,.85);
+            border-radius: 13px 13px 24px 24px;
+            background: linear-gradient(145deg, rgba(255,255,255,.15), rgba(105,68,151,.3));
+            box-shadow: inset 0 0 25px rgba(197,154,255,.15), 0 0 35px rgba(162,100,255,.2);
+            transform-style: preserve-3d;
+            animation: resBagFloat 4s ease-in-out infinite;
+            backdrop-filter: blur(8px);
+        }
+
+        .reservations-page .res-bag-cap {
+            position: absolute;
+            top: -13px;
+            left: 29px;
+            width: 38px;
+            height: 13px;
+            border: 1px solid #c4a4ff;
+            border-radius: 5px 5px 2px 2px;
+            background: linear-gradient(90deg, #654c94, #c39dff);
+        }
+
+        .reservations-page .res-bag-fluid {
+            position: absolute;
+            right: 4px;
+            bottom: 4px;
+            left: 4px;
+            height: 62%;
+            border-radius: 5px 5px 17px 17px;
+            background: linear-gradient(145deg, rgba(255,93,143,.85), rgba(151,29,90,.8));
+            box-shadow: inset 0 8px 16px rgba(255,255,255,.12);
+            opacity: .8;
+            animation: resFluidPulse 3s ease-in-out infinite;
+        }
+
+        .reservations-page .res-bag-symbol {
+            position: absolute;
+            z-index: 2;
+            top: 35px;
+            left: 0;
+            width: 100%;
+            color: #fff;
+            font-size: 34px;
+            font-weight: 500;
+            text-align: center;
+            text-shadow: 0 0 15px rgba(255,255,255,.65);
+        }
+
+        .reservations-page .res-bag-label {
+            position: absolute;
+            z-index: 3;
+            right: 0;
+            bottom: 17px;
+            left: 0;
+            color: white;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        .reservations-page .res-bag-tube {
+            position: absolute;
+            bottom: -25px;
+            left: 43px;
+            width: 12px;
+            height: 25px;
+            border: 2px solid rgba(204,174,255,.75);
+            border-top: 0;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .reservations-page .res-float-tag {
+            position: absolute;
+            z-index: 4;
+            padding: 7px 9px;
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 9px;
+            background: rgba(11,17,33,.85);
+            color: #eee4ff;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .6px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.2);
+            backdrop-filter: blur(12px);
+        }
+
+        .reservations-page .res-tag-one { top: 20px; left: 0; }
+        .reservations-page .res-tag-two { top: 46%; right: 0; color: #8ce8df; }
+        .reservations-page .res-tag-three { bottom: 16px; left: 12%; color: #ffafd0; }
+
+        .reservations-page .res-hero-glow {
+            position: absolute;
+            z-index: -1;
+            top: 15%;
+            right: 12%;
+            width: 190px;
+            height: 190px;
+            border-radius: 50%;
+            background: rgba(157,86,255,.15);
+            filter: blur(55px);
+            pointer-events: none;
+        }
+
+        .reservations-page .res-stats {
+            gap: 17px;
+            margin-bottom: 24px;
+        }
+
+        .reservations-page .res-stat {
+            position: relative;
+            overflow: hidden;
+            min-height: 125px;
+            border: 1px solid rgba(172,187,225,.17);
+            border-radius: 18px;
+            background: linear-gradient(140deg, rgba(23,35,55,.98), rgba(17,20,37,.98));
+            box-shadow: 0 15px 38px rgba(0,0,0,.16), inset 0 1px rgba(255,255,255,.04);
+            transition: transform .25s, border-color .25s;
+        }
+
+        .reservations-page .res-stat:hover {
+            transform: translateY(-4px);
+            border-color: rgba(188,144,255,.4);
+        }
+
+        .reservations-page .res-stat:nth-child(2) {
+            background: linear-gradient(140deg, rgba(16,49,53,.95), rgba(17,25,40,.98));
+        }
+
+        .reservations-page .res-stat:nth-child(3) {
+            background: linear-gradient(140deg, rgba(53,25,47,.95), rgba(22,21,39,.98));
+        }
+
+        .reservations-page .res-stat span {
+            color: #b8c4d8;
+        }
+
+        .reservations-page .res-stat strong {
+            color: #f7f7ff;
+            font-size: 30px;
+        }
+
+        .reservations-page .res-panel {
+            overflow: hidden;
+            border: 1px solid rgba(172,187,225,.17);
+            border-radius: 21px;
+            background: linear-gradient(145deg, rgba(18,28,44,.98), rgba(12,17,31,.98));
+            box-shadow: 0 18px 48px rgba(0,0,0,.19), inset 0 1px rgba(255,255,255,.04);
+        }
+
+        .reservations-page .res-panel-head {
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        .reservations-page .res-panel-head h2 {
+            color: #f5f7ff;
+        }
+
+        .reservations-page .res-search {
+            min-height: 42px;
+            border: 1px solid rgba(177,194,224,.2);
+            border-radius: 10px;
+            outline: none;
+            background: #0d1727;
+            color: #edf2ff;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .reservations-page .res-search::placeholder {
+            color: #8291aa;
+        }
+
+        .reservations-page .res-search:focus {
+            border-color: #bb91ff;
+            box-shadow: 0 0 0 3px rgba(187,145,255,.12);
+        }
+
+        .reservations-page .res-table {
+            min-width: 1000px;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .reservations-page .res-table th {
+            background: #182438;
+            color: #d1b6ff;
+            font-size: 10px;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+        }
+
+        .reservations-page .res-table td {
+            background: rgba(255,255,255,.012);
+            color: #cbd5e7;
+        }
+
+        .reservations-page .res-table tbody tr:hover td {
+            background: rgba(161,111,232,.075);
+            color: #fff;
+        }
+
+        .reservations-page .res-status {
+            border: 1px solid rgba(75,223,164,.18);
+            border-radius: 999px;
+            background: rgba(42,202,142,.12);
+            color: #78edb8;
+            font-size: 11px;
+        }
+
+        .reservations-page .res-status.other {
+            border-color: rgba(173,190,221,.14);
+            background: rgba(144,162,191,.1);
+            color: #c0cce0;
+        }
+
+        .reservations-page .res-message {
+            color: #9eacc3;
+        }
+
+        @keyframes resPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .45; }
+        }
+
+        @keyframes resOrbitSpin {
+            from { rotate: 0deg; }
+            to { rotate: 360deg; }
+        }
+
+        @keyframes resBagFloat {
+            0%, 100% { translate: 0 0; rotate: -3deg; }
+            50% { translate: 0 -8px; rotate: 3deg; }
+        }
+
+        @keyframes resFluidPulse {
+            0%, 100% { height: 60%; }
+            50% { height: 66%; }
+        }
+
+        @media (max-width: 760px) {
+            .reservations-page .res-hero {
+                min-height: 0;
+                padding: 25px 21px 10px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .reservations-page .res-hero-copy h2 {
+                font-size: 35px;
+            }
+
+            .reservations-page .res-orbit-stage {
+                flex-basis: auto;
+                width: 100%;
+                height: 220px;
+            }
+
+            .reservations-page .res-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .reservations-page .res-search {
+                width: 100%;
+                min-width: 0;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reservations-page .res-live-dot,
+            .reservations-page .res-orbit,
+            .reservations-page .res-bag,
+            .reservations-page .res-bag-fluid {
+                animation: none !important;
+            }
+        }
+    </style>
+<style>
+.res-create-panel {
+    margin-bottom: 24px;
+    padding: 24px;
+    border: 1px solid rgba(172,187,225,.17);
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(23,31,55,.97), rgba(12,19,37,.97));
+    box-shadow: 0 12px 36px rgba(0,0,0,.18);
+}
+.res-create-panel h2, .res-create-panel h3 { color: #f5f7ff; margin-top: 0; }
+.res-create-panel p { color: #aebbd3; }
+.res-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 16px;
+}
+.res-form-field { display: flex; flex-direction: column; gap: 8px; }
+.res-form-field label { color: #dce5f7; font-size: 13px; font-weight: 700; }
+.res-form-field input, .res-form-field select {
+    width: 100%; box-sizing: border-box; padding: 12px 13px;
+    border: 1px solid rgba(172,187,225,.25); border-radius: 10px;
+    color: #f5f7ff; background: #111a30; outline: none;
+}
+.res-form-field select option { background: #111a30; color: #f5f7ff; }
+.res-form-field input:focus, .res-form-field select:focus {
+    border-color: #68d9ef; box-shadow: 0 0 0 3px rgba(104,217,239,.12);
+}
+.res-form-wide { grid-column: 1 / -1; }
+.res-form-actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:18px; }
+.res-form-status { min-height:22px; margin-top:14px; color:#aebbd3; overflow-wrap:anywhere; }
+.res-form-status.error { color:#ff9baf; }
+.res-form-status.success { color:#83edbb; }
+.res-create-panel .res-table { min-width:650px; }
+.res-create-panel .res-table th { background:#19243d; color:#bfcce5; }
+.res-create-panel .res-table td { color:#e2e9f7; border-color:rgba(172,187,225,.12); }
+.res-create-panel .res-table-wrap { margin-top:12px; }
+.res-small-button { padding:8px 11px; font-size:12px; }
+.res-button:disabled { opacity:.55; cursor:not-allowed; }
+@media(max-width:700px) {
+    .res-form-grid { grid-template-columns:1fr; }
+    .res-form-wide { grid-column:auto; }
+    .res-create-panel { padding:17px; }
+}
+</style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">&#129656;</div>
+            <div>
+                <h2>BloodCare</h2>
+                <span>Management System</span>
+            </div>
+        </div>
+
+        <nav class="navigation">
+            <p class="nav-title">MAIN MENU</p>
+
+            <a href="/" class="nav-item">
+                <span>&#128202;</span> Dashboard
+            </a>
+            <a href="/donors" class="nav-item">
+                <span>&#128100;</span> Donors
+            </a>
+            <a href="/inventory" class="nav-item">
+                <span>&#129656;</span> Blood Inventory
+            </a>
+            <a href="/hospital-requests" class="nav-item">
+                <span>&#127973;</span> Hospital Requests
+            </a>
+            <a href="/emergency-matching" class="nav-item">
+                <span>&#128279;</span> Emergency Matching
+            </a>
+            <a href="/reservations" class="nav-item active">
+                <span>&#128203;</span> Reservations
+            </a>
+            <a href="/distribution" class="nav-item"><span>&#128230;</span> Distribution
+            </a>
+
+            <p class="nav-title">MANAGEMENT</p>
+            <a href="/reports" class="nav-item">
+                <span>&#128202;</span> Reports
+            </a>
+            <a href="/settings" class="nav-item">
+                <span>&#9881;</span> Settings
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="help-box">
+                <div class="help-icon">?</div>
+                <div>
+                    <strong>Need Help?</strong>
+                    <small>Contact administrator</small>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <!-- TOP BAR -->
+        <header class="topbar">
+            <div class="mobile-brand">&#129656; BloodCare</div>
+
+            <div class="search-box">
+                <span>&#10005;</span>
+                <input type="text" placeholder="Search donors, hospitals, blood units...">
+            </div>
+
+            <div class="top-actions">
+                <button class="notification" type="button">
+                    ðŸ”” <span class="notification-dot"></span>
+                </button>
+
+                <div class="profile">
+                    <div class="avatar">A</div>
+                    <div class="profile-info">
+                        <strong>Administrator</strong>
+                        <span>Blood Bank</span>
+                    </div>
+                    <span class="arrow">&#10140;</span>
+                </div>
+            </div>
+        </header>
+        <section class="dashboard reservations-page">
+        <header class="res-header">
+            <div>
+                <h1>Reservations</h1>
+                <p>Review blood units reserved for hospital requests.</p>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="res-button" type="button" onclick="loadReservations()">Refresh</button>
+                
+            </div>
+        </header>
+
+                <!-- BLOODCARE RESERVATION ORBIT -->
+        <section class="res-hero" aria-label="Reservation command center">
+            <div class="res-hero-copy">
+                <span class="res-eyebrow"><span class="res-live-dot"></span> BLOOD ALLOCATION NETWORK</span>
+                <h2>Every unit.<br><span>Reserved with purpose.</span></h2>
+                <p>Follow blood allocations, review hospital reservations, and release units when plans change.</p>
+                <div class="res-hero-tags">
+                    <span>LIVE ALLOCATIONS</span>
+                    <span>HOSPITAL LINKS</span>
+                    <span>UNIT TRACKING</span>
+                </div>
+            </div>
+            <div class="res-orbit-stage" aria-hidden="true">
+                <div class="res-orbit res-orbit-one"></div>
+                <div class="res-orbit res-orbit-two"></div>
+                <div class="res-orbit res-orbit-three"></div>
+                <div class="res-bag">
+                    <div class="res-bag-cap"></div>
+                    <div class="res-bag-fluid"></div>
+                    <div class="res-bag-symbol">+</div>
+                    <div class="res-bag-label">BLOODCARE</div>
+                    <div class="res-bag-tube"></div>
+                </div>
+                <span class="res-float-tag res-tag-one">UNIT SECURED</span>
+                <span class="res-float-tag res-tag-two">HOSPITAL LINK</span>
+                <span class="res-float-tag res-tag-three">ALLOCATION</span>
+            </div>
+            <div class="res-hero-glow"></div>
+        </section>
+        <section class="res-create-panel" aria-labelledby="createReservationTitle">
+            <h2 id="createReservationTitle">Create a blood reservation</h2>
+            <p>Select a pending hospital request and an eligible blood unit. A proposal must be approved before stock is reserved.</p>
+
+            <form id="reservationCreateForm">
+                <div class="res-form-grid">
+                    <div class="res-form-field res-form-wide">
+                        <label for="reservationRequest">Hospital / pending request</label>
+                        <select id="reservationRequest" required>
+                            <option value="">Loading pending requests...</option>
+                        </select>
+                    </div>
+                    <div class="res-form-field">
+                        <label for="reservationUnit">Compatible blood unit</label>
+                        <select id="reservationUnit" required disabled>
+                            <option value="">Choose a request first</option>
+                        </select>
+                    </div>
+                    <div class="res-form-field">
+                        <label for="reservationQuantity">Quantity (mL)</label>
+                        <input id="reservationQuantity" type="number" min="1" step="1" required placeholder="Enter quantity" disabled>
+                    </div>
+                </div>
+                <div id="reservationRequestDetails" class="res-form-status" role="status">Choose a pending request to see its requirements.</div>
+                <div class="res-form-actions">
+                    <button id="proposeReservationButton" class="res-button" type="submit" disabled>Propose match</button>
+                    <button class="res-button" type="button" onclick="loadReservationRequests()">Refresh requests</button>
+                </div>
+                <div id="reservationFormMessage" class="res-form-status" role="status" aria-live="polite"></div>
+            </form>
+
+            <div style="margin-top:28px">
+                <h3>Proposed matches awaiting approval</h3>
+                <p>Approving a proposal creates the reservation through the existing allocation workflow.</p>
+                <div class="res-table-wrap">
+                    <table class="res-table">
+                        <thead><tr><th>Match ID</th><th>Hospital</th><th>Request</th><th>Unit</th><th>Quantity</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody id="reservationProposalsBody">
+                            <tr><td colspan="7" class="res-message">Loading proposals...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        <section class="res-stats">
+            <div class="res-stat"><span>Total reservations</span><strong id="totalReservations">—</strong></div>
+            <div class="res-stat"><span>Currently reserved</span><strong id="activeReservations">—</strong></div>
+            <div class="res-stat"><span>Reserved quantity</span><strong id="reservedQuantity">—</strong></div>
+        </section>
+
+        <section class="res-panel">
+            <div class="res-panel-head">
+                <h2>Reservation records</h2>
+                <input id="reservationSearch" class="res-search" type="search" placeholder="Search hospital, group, status..." aria-label="Search reservations">
+            </div>
+            <div class="res-table-wrap">
+                <table class="res-table">
+                    <thead>
+                        <tr>
+                            <th>Reservation ID</th>
+                            <th>Hospital</th>
+                            <th>Request ID</th>
+                            <th>Blood Group</th>
+                            <th>Component</th>
+                            <th>Unit ID</th>
+                            <th>Quantity</th>
+                            <th>Reservation Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reservationsBody">
+                        <tr><td colspan="10" class="res-message">Loading reservations...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="reservationMessage" class="res-message" role="status"></div>
+        </section>
+    </main>
+
+        </section>
+    </main>
+        </section>
+    </main>
+    <script>
+        let reservationRecords = [];
+
+        function escapeHTML(value) {
+            return String(value ?? "").replace(/[&<>"']/g, char => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;",
+                '"': "&quot;", "'": "&#39;"
+            }[char]));
+        }
+
+        function renderReservations() {
+            const body = document.getElementById("reservationsBody");
+            const query = document.getElementById("reservationSearch").value.trim().toLowerCase();
+
+            const filtered = reservationRecords.filter(item =>
+                [
+                    item.reservation_id, item.hospital_name, item.request_id,
+                    item.blood_group, item.component_name, item.unit_id,
+                    item.reserved_quantity_ml, item.reservation_date,
+                    item.reservation_status
+                ].some(value => String(value ?? "").toLowerCase().includes(query))
+            );
+
+            if (!filtered.length) {
+                body.innerHTML = `<tr><td colspan="10" class="res-message">${
+                    reservationRecords.length ? "No reservations match your search." : "No reservations found."
+                }</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = filtered.map(item => {
+                const status = String(item.reservation_status || "Unknown");
+                const active = status.toLowerCase() === "reserved";
+                return `<tr>
+                    <td>#${escapeHTML(item.reservation_id)}</td>
+                    <td>${escapeHTML(item.hospital_name)}</td>
+                    <td>#${escapeHTML(item.request_id)}</td>
+                    <td>${escapeHTML(item.blood_group)}</td>
+                    <td>${escapeHTML(item.component_name)}</td>
+                    <td>#${escapeHTML(item.unit_id)}</td>
+                    <td>${escapeHTML(item.reserved_quantity_ml)} mL</td>
+                    <td>${escapeHTML(item.reservation_date || "—")}</td>
+                    <td><span class="res-status ${active ? "" : "other"}">${escapeHTML(status)}</span></td>
+                    <td>${active
+                        ? `<button class="res-button" type="button" onclick="cancelReservation(${Number(item.reservation_id)})">Cancel</button>`
+                        : "—"}</td>
+                </tr>`;
+            }).join("");
+        }
+
+        async function loadReservations() {
+            const body = document.getElementById("reservationsBody");
+            const message = document.getElementById("reservationMessage");
+            body.innerHTML = '<tr><td colspan="10" class="res-message">Loading reservations...</td></tr>';
+            message.textContent = "";
+
+            try {
+                const response = await fetch("/api/reservations");
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || "Unable to load reservations.");
+                }
+
+                reservationRecords = data.reservations || [];
+                document.getElementById("totalReservations").textContent = reservationRecords.length;
+
+                const active = reservationRecords.filter(item =>
+                    String(item.reservation_status).toLowerCase() === "reserved"
+                );
+                document.getElementById("activeReservations").textContent = active.length;
+                document.getElementById("reservedQuantity").textContent =
+                    active.reduce((sum, item) => sum + Number(item.reserved_quantity_ml || 0), 0).toLocaleString() + " mL";
+
+                renderReservations();
+                if (!reservationRecords.length) {
+                    message.textContent = "Reservations will appear here after a match is approved and reserved.";
+                }
+            } catch (error) {
+                console.error(error);
+                body.innerHTML = '<tr><td colspan="10" class="res-message">Could not load reservations.</td></tr>';
+                message.textContent = error.message;
+            }
+        }
+
+        async function cancelReservation(reservationId) {
+            const confirmed = window.confirm(
+                `Cancel reservation #${reservationId}? This will release its allocation.`
+            );
+            if (!confirmed) return;
+
+            try {
+                const response = await fetch(`/api/reservations/${reservationId}/cancel`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || "Unable to cancel reservation.");
+                }
+
+                window.alert(data.message || "Reservation cancelled.");
+                await loadReservations();
+            } catch (error) {
+                console.error(error);
+                window.alert(error.message || "Unable to cancel reservation.");
+            }
+        }
+
+        const reservationRequestSelect = document.getElementById("reservationRequest");
+        const reservationUnitSelect = document.getElementById("reservationUnit");
+        const reservationQuantityInput = document.getElementById("reservationQuantity");
+        const reservationFormMessage = document.getElementById("reservationFormMessage");
+        const reservationRequestDetails = document.getElementById("reservationRequestDetails");
+        const reservationProposalsBody = document.getElementById("reservationProposalsBody");
+        const proposeReservationButton = document.getElementById("proposeReservationButton");
+
+        async function reservationFetchJSON(url, options = {}) {
+            const response = await fetch(url, options);
+            const data = await response.json();
+            if (!response.ok || data.success === false) {
+                throw new Error(data.error || data.message || `Request failed: ${response.status}`);
+            }
+            return data;
+        }
+
+        function reservationMessage(message, type = "") {
+            reservationFormMessage.textContent = message;
+            reservationFormMessage.className = `res-form-status ${type}`;
+        }
+
+        async function loadReservationRequests() {
+            reservationRequestSelect.replaceChildren(new Option("Loading pending requests...", ""));
+            reservationRequestSelect.disabled = true;
+            reservationUnitSelect.replaceChildren(new Option("Choose a request first", ""));
+            reservationUnitSelect.disabled = true;
+            reservationQuantityInput.value = "";
+            reservationQuantityInput.disabled = true;
+            proposeReservationButton.disabled = true;
+
+            try {
+                const data = await reservationFetchJSON("/api/hospital-requests");
+                const requests = (data.requests || []).filter(r => r.request_status === "Pending");
+
+                reservationRequestSelect.replaceChildren(new Option(
+                    requests.length ? "Select hospital and request..." : "No pending requests available",
+                    ""
+                ));
+
+                requests.forEach(r => {
+                    const label = `${r.hospital_name || "Hospital"} — Request #${r.request_id} — ${r.blood_group || "Group"} / ${r.component_name || "Component"} — ${r.quantity_ml} mL`;
+                    const option = new Option(label, String(r.request_id));
+                    reservationRequestSelect.add(option);
+                });
+
+                reservationRequestSelect.disabled = requests.length === 0;
+                reservationRequestDetails.textContent = requests.length
+                    ? `${requests.length} pending request(s) available. Select one to find eligible units.`
+                    : "There are no pending hospital requests.";
+                reservationMessage("", "");
+            } catch (error) {
+                reservationRequestSelect.replaceChildren(new Option("Could not load requests", ""));
+                reservationRequestDetails.textContent = error.message;
+                reservationMessage(`Unable to load requests: ${error.message}`, "error");
+            }
+        }
+
+        async function loadEligibleReservationUnits() {
+            const requestId = reservationRequestSelect.value;
+            reservationUnitSelect.replaceChildren(new Option("Loading eligible units...", ""));
+            reservationUnitSelect.disabled = true;
+            reservationQuantityInput.value = "";
+            reservationQuantityInput.disabled = true;
+            proposeReservationButton.disabled = true;
+
+            if (!requestId) {
+                reservationUnitSelect.replaceChildren(new Option("Choose a request first", ""));
+                reservationRequestDetails.textContent = "Choose a pending request to see its requirements.";
+                return;
+            }
+
+            try {
+                const requestData = await reservationFetchJSON("/api/hospital-requests");
+                const selectedRequest = (requestData.requests || []).find(
+                    r => String(r.request_id) === String(requestId)
+                );
+
+                const data = await reservationFetchJSON(
+                    `/api/matching-candidates/${encodeURIComponent(requestId)}`
+                );
+                const candidates = data.candidates || [];
+
+                reservationUnitSelect.replaceChildren(new Option(
+                    candidates.length ? "Select an eligible blood unit..." : "No eligible units available",
+                    ""
+                ));
+
+                candidates.forEach(unit => {
+                    const label = `Unit #${unit.unit_id} — ${unit.blood_group} ${unit.component_name} — ${unit.quantity_ml} mL — Expires ${unit.expiry_date}`;
+                    reservationUnitSelect.add(new Option(label, String(unit.unit_id)));
+                });
+
+                reservationUnitSelect.disabled = candidates.length === 0;
+                reservationQuantityInput.max = String(
+                    selectedRequest
+                        ? Math.min(Number(selectedRequest.quantity_ml), ...candidates.map(u => Number(u.quantity_ml)))
+                        : Number(data.requested_quantity_ml)
+                );
+                reservationQuantityInput.disabled = candidates.length === 0;
+                proposeReservationButton.disabled = candidates.length === 0;
+
+                reservationRequestDetails.textContent = selectedRequest
+                    ? `Hospital: ${selectedRequest.hospital_name || "—"} | Blood group: ${selectedRequest.blood_group || "—"} | Component: ${selectedRequest.component_name || "—"} | Request quantity: ${selectedRequest.quantity_ml} mL | Eligible units: ${candidates.length}`
+                    : `Request #${requestId} | Requested quantity: ${data.requested_quantity_ml} mL | Eligible units: ${candidates.length}`;
+
+                reservationMessage(
+                    candidates.length
+                        ? "Eligible units loaded. Choose a unit and enter the quantity."
+                        : "No eligible units found. Check the inventory or choose another request.",
+                    candidates.length ? "" : "error"
+                );
+            } catch (error) {
+                reservationUnitSelect.replaceChildren(new Option("Could not load eligible units", ""));
+                reservationRequestDetails.textContent = error.message;
+                reservationMessage(`Could not load eligible units: ${error.message}`, "error");
+            }
+        }
+
+        function updateReservationQuantityLimit() {
+            const requestId = reservationRequestSelect.value;
+            const unitId = reservationUnitSelect.value;
+            if (!requestId || !unitId) {
+                reservationQuantityInput.value = "";
+                proposeReservationButton.disabled = true;
+                return;
+            }
+
+            const selectedOption = reservationUnitSelect.selectedOptions[0];
+            const match = selectedOption ? selectedOption.textContent.match(/— (\d+) mL —/) : null;
+            const unitQuantity = match ? Number(match[1]) : Number(reservationQuantityInput.max);
+            const max = Math.min(unitQuantity, Number(reservationQuantityInput.max) || unitQuantity);
+            reservationQuantityInput.max = String(max);
+            reservationQuantityInput.value = String(max);
+            reservationQuantityInput.disabled = false;
+            proposeReservationButton.disabled = false;
+        }
+
+        async function submitReservationProposal(event) {
+            event.preventDefault();
+
+            const requestId = Number(reservationRequestSelect.value);
+            const unitId = Number(reservationUnitSelect.value);
+            const quantity = Number(reservationQuantityInput.value);
+
+            if (!Number.isInteger(requestId) || !Number.isInteger(unitId) ||
+                !Number.isInteger(quantity) || quantity <= 0) {
+                reservationMessage("Select a request, choose an eligible unit, and enter a positive whole-number quantity.", "error");
+                return;
+            }
+
+            proposeReservationButton.disabled = true;
+            reservationMessage("Recording proposed match...", "");
+
+            try {
+                const data = await reservationFetchJSON("/api/matching", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        request_id: requestId,
+                        unit_id: unitId,
+                        matched_quantity_ml: quantity
+                    })
+                });
+
+                reservationMessage(
+                    `Proposal #${data.matching_id} recorded. Stock is not reserved yet; approve it below to complete the reservation.`,
+                    "success"
+                );
+
+                reservationUnitSelect.value = "";
+                reservationQuantityInput.value = "";
+                await loadReservationRequests();
+                await loadReservationProposals();
+                await loadReservations();
+            } catch (error) {
+                reservationMessage(`Could not propose match: ${error.message}`, "error");
+                proposeReservationButton.disabled = false;
+            }
+        }
+
+        async function loadReservationProposals() {
+            try {
+                const data = await reservationFetchJSON("/api/matching-history");
+                const proposals = (data.matches || []).filter(m => m.matching_status === "Proposed");
+                reservationProposalsBody.replaceChildren();
+
+                if (!proposals.length) {
+                    const row = document.createElement("tr");
+                    const cell = document.createElement("td");
+                    cell.colSpan = 7;
+                    cell.className = "res-message";
+                    cell.textContent = "No proposed matches awaiting approval.";
+                    row.appendChild(cell);
+                    reservationProposalsBody.appendChild(row);
+                    return;
+                }
+
+                proposals.forEach(match => {
+                    const row = document.createElement("tr");
+                    [
+                        `#${match.matching_id}`,
+                        match.hospital_name || "—",
+                        `#${match.request_id}`,
+                        `#${match.unit_id}`,
+                        `${match.matched_quantity_ml} mL`,
+                        match.matching_status
+                    ].forEach(value => {
+                        const cell = document.createElement("td");
+                        cell.textContent = value;
+                        row.appendChild(cell);
+                    });
+
+                    const actionCell = document.createElement("td");
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "res-button res-small-button";
+                    button.textContent = "Approve & Reserve";
+                    button.addEventListener("click", () => approveReservationProposal(match, button));
+                    actionCell.appendChild(button);
+                    row.appendChild(actionCell);
+                    reservationProposalsBody.appendChild(row);
+                });
+            } catch (error) {
+                reservationProposalsBody.replaceChildren();
+                const row = document.createElement("tr");
+                const cell = document.createElement("td");
+                cell.colSpan = 7;
+                cell.className = "res-message";
+                cell.textContent = `Could not load proposals: ${error.message}`;
+                row.appendChild(cell);
+                reservationProposalsBody.appendChild(row);
+            }
+        }
+
+        async function approveReservationProposal(match, button) {
+            if (!window.confirm(
+                `Approve match #${match.matching_id} and reserve ${match.matched_quantity_ml} mL for hospital request #${match.request_id}?`
+            )) return;
+
+            button.disabled = true;
+            try {
+                const data = await reservationFetchJSON(
+                    `/api/matching-approval/${encodeURIComponent(match.matching_id)}`,
+                    { method: "POST" }
+                );
+                reservationMessage(data.message || "Reservation created successfully.", "success");
+                await loadReservationProposals();
+                await loadReservationRequests();
+                await loadReservations();
+            } catch (error) {
+                reservationMessage(`Approval failed: ${error.message}`, "error");
+                button.disabled = false;
+            }
+        }
+
+        reservationRequestSelect.addEventListener("change", loadEligibleReservationUnits);
+        reservationUnitSelect.addEventListener("change", updateReservationQuantityLimit);
+        document.getElementById("reservationCreateForm").addEventListener("submit", submitReservationProposal);
+                document.getElementById("reservationSearch").addEventListener("input", renderReservations);
+        loadReservations();
+        loadReservationRequests();
+        loadReservationProposals();
+    </script>
+</body>
+</html>
+
+
+
+
+
+

@@ -1,0 +1,732 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <title>Distribution | BloodCare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+:root {
+    color-scheme: dark;
+    --bg: #080b13;
+    --panel: #111a29;
+    --panel2: #172235;
+    --border: #29364c;
+    --text: #edf3ff;
+    --muted: #9eacc2;
+    --red: #ff4967;
+    --cyan: #5ee7ff;
+}
+* { box-sizing: border-box; }
+html { min-height: 100%; background: var(--bg); }
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(ellipse at 80% 0%, #30172b 0%, transparent 43%),
+        radial-gradient(ellipse at 0% 65%, #10233a 0%, transparent 38%),
+        var(--bg) !important;
+    color: var(--text) !important;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+body, body * { box-sizing: border-box; }
+h1, h2, h3, h4, label, strong { color: var(--text); }
+p, small, .subtitle { color: var(--muted); }
+a { color: #ff8ba0; }
+input, select, textarea {
+    width: 100%;
+    color: var(--text) !important;
+    background: #0b1220 !important;
+    border: 1px solid #34435b !important;
+    border-radius: 10px;
+    padding: 12px 14px;
+    outline: none;
+}
+input:focus, select:focus, textarea:focus {
+    border-color: var(--cyan) !important;
+    box-shadow: 0 0 0 3px #5ee7ff17;
+}
+option { background: #111a29; color: white; }
+button, .dist-button {
+    color: white !important;
+    background: linear-gradient(135deg, #ff526f, #bc2149) !important;
+    border: 1px solid #ff7188 !important;
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-weight: 700;
+    cursor: pointer;
+}
+button:hover, .dist-button:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+}
+button:disabled { opacity: .55; cursor: not-allowed; }
+.dist-stat, .dist-card, .dist-panel, .dist-form,
+.dist-section, .dist-message, .dist-table-container,
+.stat-card, .card, section, article {
+    border-color: var(--border);
+}
+.dist-stat {
+    background: linear-gradient(145deg, #182337, #0f1725) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 16px !important;
+    padding: 22px !important;
+    box-shadow: 0 12px 32px #00000017;
+}
+.dist-stat span { color: var(--muted) !important; }
+.dist-stat strong {
+    display: block;
+    margin-top: 9px;
+    font-size: clamp(24px, 3vw, 34px);
+}
+.dist-form {
+    background: linear-gradient(145deg, #141f30, #0f1725) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 18px !important;
+    padding: 24px !important;
+}
+.dist-message {
+    color: #a7e9ff !important;
+    background: #10283a !important;
+    border: 1px solid #28536a !important;
+    border-radius: 10px;
+    padding: 13px 16px;
+}
+.dist-note {
+    color: #9feaff !important;
+    background: #102535;
+    border-left: 3px solid var(--cyan);
+    border-radius: 6px;
+    padding: 12px 14px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #101725 !important;
+    color: var(--text) !important;
+}
+thead th, th {
+    background: #1a263a !important;
+    color: #a9bdd8 !important;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+    padding: 15px;
+}
+td {
+    color: #e2eaf8 !important;
+    border-bottom: 1px solid #263248 !important;
+    padding: 14px 15px;
+    font-size: 13px;
+}
+tbody tr:hover td { background: #1a273a !important; }
+.dist-empty { color: var(--muted) !important; text-align: center; padding: 28px; }
+header, nav, aside, footer {
+    border-color: var(--border);
+}
+@media(max-width:700px) {
+    .dist-form { padding: 16px !important; }
+    .dist-stat { padding: 16px !important; }
+    table { min-width: 760px; }
+}
+
+/* CINEMATIC 3D DISTRIBUTION EXPERIENCE */
+.dist-page {
+    position: relative;
+    perspective: 1200px;
+}
+.distribution-3d-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: center;
+    gap: 20px;
+    min-height: 310px;
+    margin: 22px 0 26px;
+    padding: 28px 34px;
+    border: 1px solid #34435c;
+    border-radius: 22px;
+    background:
+        radial-gradient(ellipse at 78% 50%, #54203865, transparent 40%),
+        linear-gradient(115deg, #171b2b, #101a2b 65%, #111625);
+    box-shadow: 0 22px 55px #00000038, inset 0 1px #ffffff09;
+}
+.distribution-3d-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(115deg, transparent 25%, #ffffff04 45%, transparent 65%);
+}
+.distribution-hero-copy { position: relative; z-index: 2; }
+.distribution-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 11px;
+    border: 1px solid #ff59764a;
+    border-radius: 30px;
+    color: #ff8ca1;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.7px;
+}
+.live-dot, .scene-caption span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ff4967;
+    box-shadow: 0 0 13px #ff4967;
+    animation: distributionPulse 1.8s ease-in-out infinite;
+}
+.distribution-hero-copy h2 {
+    margin: 18px 0 12px;
+    color: #f5f7ff;
+    font-size: clamp(27px, 3.1vw, 39px);
+    line-height: 1.13;
+    letter-spacing: -1.2px;
+}
+.distribution-hero-copy h2 span {
+    color: #ff6681;
+    text-shadow: 0 0 24px #ff496726;
+}
+.distribution-hero-copy > p {
+    max-width: 480px;
+    color: #b7c4d9;
+    font-size: 13px;
+    line-height: 1.8;
+}
+.distribution-flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 25px;
+}
+.flow-step {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #cbd8e9;
+    font-size: 10px;
+}
+.flow-step span {
+    display: grid;
+    place-items: center;
+    width: 27px;
+    height: 27px;
+    border: 1px solid #ff59765c;
+    border-radius: 50%;
+    color: #ff8196;
+    background: #ff496710;
+    font-size: 9px;
+}
+.flow-step strong { color: #d7e2f3; font-size: 10px; }
+.flow-line {
+    width: clamp(12px, 2vw, 28px);
+    height: 2px;
+    overflow: hidden;
+    background: #334057;
+}
+.flow-line i {
+    display: block;
+    height: 100%;
+    width: 45%;
+    background: #5ee7ff;
+    box-shadow: 0 0 9px #5ee7ff;
+    animation: flowTravel 2.5s ease-in-out infinite alternate;
+}
+.blood-orbit-scene {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 260px;
+    perspective: 900px;
+    transform-style: preserve-3d;
+}
+.orbit-ring {
+    position: absolute;
+    width: 205px;
+    height: 205px;
+    border: 1px solid #ff547d45;
+    border-radius: 50%;
+    transform: rotateX(65deg) rotateZ(-15deg);
+}
+.orbit-ring-one { animation: orbitSpin 16s linear infinite; }
+.orbit-ring-two {
+    width: 170px;
+    height: 170px;
+    border-color: #5ee7ff55;
+    transform: rotateX(70deg) rotateZ(35deg);
+    animation: orbitSpinReverse 13s linear infinite;
+}
+.orbit-ring-three {
+    width: 235px;
+    height: 235px;
+    border-style: dashed;
+    border-color: #a16bff38;
+    transform: rotateX(72deg) rotateZ(5deg);
+    animation: orbitSpin 24s linear infinite;
+}
+.orbit-node {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    z-index: 4;
+}
+.node-one {
+    background: #ff5e81;
+    box-shadow: 0 0 15px #ff4967;
+    top: 25%;
+    right: 23%;
+}
+.node-two {
+    background: #5ee7ff;
+    box-shadow: 0 0 15px #5ee7ff;
+    bottom: 23%;
+    left: 22%;
+}
+.node-three {
+    width: 6px;
+    height: 6px;
+    background: #bd9aff;
+    box-shadow: 0 0 12px #bd9aff;
+    top: 23%;
+    left: 28%;
+}
+.blood-bag-3d {
+    position: relative;
+    z-index: 2;
+    width: 115px;
+    height: 180px;
+    transform-style: preserve-3d;
+    animation: bagFloat 4.5s ease-in-out infinite;
+    filter: drop-shadow(0 22px 22px #e51d5035);
+}
+.bag-hook {
+    position: absolute;
+    width: 27px;
+    height: 18px;
+    top: -4px;
+    left: 44px;
+    border: 4px solid #d8e7fa;
+    border-bottom: 0;
+    border-radius: 10px 10px 0 0;
+}
+.bag-cap {
+    position: absolute;
+    top: 12px;
+    left: 31px;
+    width: 54px;
+    height: 12px;
+    border-radius: 4px 4px 2px 2px;
+    background: linear-gradient(90deg, #9ba9bd, #f1f5ff, #8a9bb5);
+    box-shadow: 0 3px 6px #0007;
+}
+.bag-body {
+    position: absolute;
+    top: 22px;
+    left: 9px;
+    width: 97px;
+    height: 127px;
+    overflow: hidden;
+    border: 2px solid #ffb0c278;
+    border-radius: 15px 15px 25px 25px;
+    background: linear-gradient(110deg, #ff7a983d, #d41a4d70 45%, #750d344f);
+    box-shadow: inset 7px 0 12px #ffffff13, inset -9px 0 17px #40061e6b, 0 0 24px #ff496724;
+    transform: rotateY(-13deg) rotateX(5deg);
+}
+.bag-shine {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 12px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #ffffff72, #ffffff05);
+    filter: blur(2px);
+    z-index: 3;
+}
+.bag-cross {
+    position: absolute;
+    z-index: 4;
+    top: 22px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: white;
+    font-size: 29px;
+    font-weight: 800;
+    text-shadow: 0 0 13px #ffffff70;
+}
+.bag-liquid {
+    position: absolute;
+    inset: 53px 0 0;
+    background: linear-gradient(120deg, #fa456d, #c90d43 65%, #7c0c32);
+    opacity: .93;
+}
+.liquid-wave {
+    position: absolute;
+    top: -8px;
+    left: -20%;
+    width: 140%;
+    height: 18px;
+    border-radius: 50%;
+    border-top: 3px solid #ffabc0;
+    animation: liquidMove 3s ease-in-out infinite alternate;
+}
+.bag-label {
+    position: absolute;
+    z-index: 5;
+    bottom: 14px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #ffffffde;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+.bag-label small {
+    display: block;
+    margin-top: 4px;
+    color: #ffd9e2;
+    font-size: 6px;
+    letter-spacing: 1px;
+}
+.bag-tube {
+    position: absolute;
+    bottom: 7px;
+    left: 53px;
+    width: 9px;
+    height: 24px;
+    border: 2px solid #ff829b;
+    border-top: 0;
+    background: #d5224d99;
+}
+.bag-drop {
+    position: absolute;
+    bottom: -3px;
+    left: 49px;
+    width: 17px;
+    height: 20px;
+    background: linear-gradient(135deg, #ff8ba2, #e91f4f 65%, #a80d38);
+    border-radius: 70% 35% 65% 40%;
+    transform: rotate(45deg);
+    box-shadow: 0 0 18px #ff4967a3;
+    animation: dropPulse 2s ease-in-out infinite;
+}
+.scene-caption {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #92a8c4;
+    font-size: 8px;
+    letter-spacing: 1.6px;
+}
+.scene-caption span { width: 5px; height: 5px; background: #5ee7ff; box-shadow: 0 0 10px #5ee7ff; }
+.dist-stat {
+    transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+    transform-style: preserve-3d;
+}
+.dist-stat:hover {
+    transform: translateY(-5px) rotateX(2deg);
+    border-color: #ff59766b !important;
+    box-shadow: 0 16px 35px #0004, 0 0 18px #ff496710;
+}
+.dist-panel {
+    box-shadow: 0 12px 30px #00000018;
+}
+@keyframes bagFloat {
+    0%, 100% { transform: translateY(0) rotateY(-5deg) rotateZ(-2deg); }
+    50% { transform: translateY(-11px) rotateY(7deg) rotateZ(2deg); }
+}
+@keyframes orbitSpin { to { transform: rotateX(65deg) rotateZ(345deg); } }
+@keyframes orbitSpinReverse { to { transform: rotateX(70deg) rotateZ(-325deg); } }
+@keyframes liquidMove { from { transform: translateX(-5%) rotate(-3deg); } to { transform: translateX(5%) rotate(3deg); } }
+@keyframes dropPulse { 0%, 100% { transform: rotate(45deg) scale(.92); } 50% { transform: rotate(45deg) scale(1.08); } }
+@keyframes flowTravel { from { transform: translateX(-5%); } to { transform: translateX(125%); } }
+@keyframes distributionPulse { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+
+@media(max-width:800px) {
+    .distribution-3d-hero {
+        grid-template-columns: 1fr;
+        padding: 25px 20px;
+    }
+    .blood-orbit-scene { min-height: 245px; }
+    .distribution-flow { gap: 6px; }
+    .flow-step { gap: 4px; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .distribution-3d-hero *, .distribution-3d-hero *::before,
+    .distribution-3d-hero *::after, .dist-stat {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+</style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">&#128147;</div>
+            <div><h2>BloodCare</h2><span>Management System</span></div>
+        </div>
+        <nav class="navigation">
+            <p class="nav-title">MAIN MENU</p>
+            <a href="/" class="nav-item"><span>&#128202;</span> Dashboard</a>
+            <a href="/donors" class="nav-item"><span>&#128100;</span> Donors</a>
+            <a href="/inventory" class="nav-item"><span>&#129656;</span> Blood Inventory</a>
+            <a href="/hospital-requests" class="nav-item"><span>&#127973;</span> Hospital Requests</a>
+            <a href="/emergency-matching" class="nav-item"><span>&#128279;</span> Emergency Matching</a>
+            <a href="/reservations" class="nav-item"><span>&#128203;</span> Reservations</a>
+            <a href="/distribution" class="nav-item active"><span>&#128230;</span> Distribution</a>
+            <p class="nav-title">MANAGEMENT</p>
+            <a href="/reports" class="nav-item"><span>&#128202;</span> Reports</a>
+            <a href="/settings" class="nav-item"><span>&#9881;</span> Settings</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="help-box"><div class="help-icon">?</div><div><strong>Need Help?</strong><small>Contact administrator</small></div></div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div class="mobile-brand"><span>&#129656;</span> BloodCare</div>
+            <div class="search-box"><span>?</span><input type="text" placeholder="Search distribution history..."></div>
+        </header>
+
+        <section class="dist-page">
+            <div class="dist-header">
+                <h1>Blood Distribution</h1>
+                <p>Record and track blood component handovers to hospitals.</p>
+            </div>
+
+            <div class="distribution-3d-hero">
+    <div class="distribution-hero-copy">
+        <span class="distribution-live"><span class="live-dot"></span> DISTRIBUTION CONTROL CENTER</span>
+        <h2>Every drop.<br><span>Delivered with care.</span></h2>
+        <p>Track reserved blood components, verify handovers, and maintain a reliable distribution record.</p>
+        <div class="distribution-flow">
+            <div class="flow-step"><span>01</span><strong>Reserved</strong></div>
+            <div class="flow-line"><i></i></div>
+            <div class="flow-step"><span>02</span><strong>Verified</strong></div>
+            <div class="flow-line"><i></i></div>
+            <div class="flow-step"><span>03</span><strong>Distributed</strong></div>
+        </div>
+    </div>
+    <div class="blood-orbit-scene" aria-hidden="true">
+        <div class="orbit-ring orbit-ring-one"></div>
+        <div class="orbit-ring orbit-ring-two"></div>
+        <div class="orbit-ring orbit-ring-three"></div>
+        <div class="orbit-node node-one"></div>
+        <div class="orbit-node node-two"></div>
+        <div class="orbit-node node-three"></div>
+        <div class="blood-bag-3d">
+            <div class="bag-hook"></div>
+            <div class="bag-cap"></div>
+            <div class="bag-body">
+                <div class="bag-shine"></div>
+                <div class="bag-cross">+</div>
+                <div class="bag-liquid"><div class="liquid-wave"></div></div>
+                <div class="bag-label">BLOODCARE<small>SAFE HANDOVER</small></div>
+            </div>
+            <div class="bag-tube"></div>
+            <div class="bag-drop"></div>
+        </div>
+        <div class="scene-caption"><span></span> PRECISION • SAFETY • CARE</div>
+    </div>
+</div>
+
+            <div class="dist-stats">
+                <div class="dist-stat"><span>Total distributions</span><strong id="totalDistributions">0</strong></div>
+                <div class="dist-stat"><span>Volume distributed</span><strong id="totalVolume">0 ml</strong></div>
+                <div class="dist-stat"><span>Active reservations</span><strong id="activeReservations">0</strong></div>
+            </div>
+
+            <div class="dist-grid">
+                <section class="dist-panel">
+                    <div class="dist-panel-head"><h2>Record a Distribution</h2></div>
+                    <div id="formMessage" class="dist-message" role="status"></div>
+                    <form id="distributionForm" class="dist-form">
+                        <label>Reserved request / unit
+                            <select id="reservationId" required>
+                                <option value="">Loading reservations...</option>
+                            </select>
+                        </label>
+                        <label>Quantity to distribute (ml)
+                            <input id="distributionQuantity" type="number" min="1" step="1" required placeholder="e.g. 250">
+                        </label>
+                        <label>Received by
+                            <input id="receivedBy" type="text" maxlength="100" required placeholder="Recipient name">
+                        </label>
+                        <p id="reservationInfo" class="dist-note">Choose an active reservation to see its remaining reserved quantity.</p>
+                        <button id="submitDistribution" class="dist-button" type="submit">Record Distribution</button>
+                        <p class="dist-note">Only active reservations can be distributed. The server validates quantities, expiry, and request/unit compatibility before saving.</p>
+                    </form>
+                </section>
+
+                <section class="dist-panel">
+                    <div class="dist-panel-head"><h2>Distribution Process</h2></div>
+                    <div class="dist-form">
+                        <p><strong>1.</strong> Select an active reservation.</p>
+                        <p><strong>2.</strong> Confirm the quantity and recipient.</p>
+                        <p><strong>3.</strong> Record the handover and review it in the history table.</p>
+                        <p class="dist-note">Demo reminder: recording a distribution changes the database. Check the selected reservation before confirming.</p>
+                    </div>
+                </section>
+            </div>
+
+            <section class="dist-panel">
+                <div class="dist-panel-head"><h2>Distribution History</h2></div>
+                <div class="dist-table-wrap">
+                    <table class="dist-table">
+                        <thead><tr><th>ID</th><th>Request</th><th>Hospital</th><th>Blood Group</th><th>Component</th><th>Unit</th><th>Quantity</th><th>Received By</th><th>Date</th></tr></thead>
+                        <tbody id="distributionRows"><tr><td colspan="9" class="dist-empty">Loading distribution history...</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <script>
+        let reservations = [];
+
+        function escapeHtml(value) {
+            return String(value ?? "").replace(/[&<>"']/g, ch => ({
+                "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+            }[ch]));
+        }
+
+        async function readJson(response) {
+            const data = await response.json();
+            if (!response.ok || data.success === false) {
+                throw new Error(data.error || "The request could not be completed.");
+            }
+            return data;
+        }
+
+        function showMessage(message, isError=false) {
+            const box = document.getElementById("formMessage");
+            box.textContent = message;
+            box.className = "dist-message " + (isError ? "err" : "ok");
+        }
+
+        function updateReservationInfo() {
+            const id = document.getElementById("reservationId").value;
+            const item = reservations.find(r => String(r.reservation_id) === id);
+            const quantity = document.getElementById("distributionQuantity");
+            const info = document.getElementById("reservationInfo");
+            if (!item) {
+                quantity.max = "";
+                info.textContent = "Choose an active reservation to see its remaining reserved quantity.";
+                return;
+            }
+            quantity.max = item.remaining_reserved_ml;
+            info.textContent = `Request #${item.request_id} ? Unit #${item.unit_id} ? ${item.blood_group} ${item.component_name} ? ${item.hospital_name}. Remaining reserved: ${item.remaining_reserved_ml} ml. Expiry: ${item.expiry_date || "unknown"}.`;
+        }
+
+        async function loadReservations() {
+            const select = document.getElementById("reservationId");
+            try {
+                const data = await readJson(await fetch("/api/distributions/eligible"));
+                reservations = (data.reservations || []).filter(r =>
+                    r.reservation_status === "Reserved" &&
+                    r.remaining_reserved_ml > 0 &&
+                    r.expiry_date &&
+                    r.expiry_date >= new Date().toISOString().slice(0,10)
+                );
+                select.innerHTML = '<option value="">Select an active reservation</option>' +
+                    reservations.map(r => `<option value="${r.reservation_id}">Reservation #${r.reservation_id} &bull; Request #${r.request_id} &bull; Unit #${r.unit_id} &bull; ${escapeHtml(r.blood_group)} ${escapeHtml(r.component_name)} ? ${r.remaining_reserved_ml} ml remaining</option>`).join("");
+                if (!reservations.length) {
+                    select.innerHTML = '<option value="">No eligible active reservations</option>';
+                }
+                updateReservationInfo();
+                document.getElementById("activeReservations").textContent = reservations.length;
+            } catch (error) {
+                select.innerHTML = '<option value="">Could not load reservations</option>';
+                showMessage(error.message, true);
+            }
+        }
+
+        async function loadDistributions() {
+            const tbody = document.getElementById("distributionRows");
+            try {
+                const data = await readJson(await fetch("/api/distributions"));
+                const rows = data.distributions || [];
+                document.getElementById("totalDistributions").textContent = rows.length;
+                document.getElementById("totalVolume").textContent =
+                    rows.reduce((sum, r) => sum + Number(r.distributed_quantity_ml || 0), 0) + " ml";
+                if (!rows.length) {
+                    tbody.innerHTML = '<tr><td colspan="9" class="dist-empty">No distributions recorded yet.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = rows.map(r => `<tr>
+                    <td>${r.distribution_id}</td><td>#${r.request_id}</td>
+                    <td>${escapeHtml(r.hospital_name)}</td><td>${escapeHtml(r.blood_group)}</td>
+                    <td>${escapeHtml(r.component_name)}</td><td>#${r.unit_id}</td>
+                    <td>${r.distributed_quantity_ml} ml</td><td>${escapeHtml(r.received_by || "?")}</td>
+                    <td>${escapeHtml(r.distribution_date || "?")}</td>
+                </tr>`).join("");
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="9" class="dist-empty">${escapeHtml(error.message)}</td></tr>`;
+            }
+        }
+
+        document.getElementById("reservationId").addEventListener("change", updateReservationInfo);
+
+        document.getElementById("distributionForm").addEventListener("submit", async event => {
+            event.preventDefault();
+            const reservationId = document.getElementById("reservationId").value;
+            const quantity = Number(document.getElementById("distributionQuantity").value);
+            const receivedBy = document.getElementById("receivedBy").value.trim();
+            const selected = reservations.find(r => String(r.reservation_id) === reservationId);
+            if (!selected) return showMessage("Select an eligible active reservation.", true);
+            if (!Number.isInteger(quantity) || quantity <= 0 || quantity > selected.remaining_reserved_ml) {
+                return showMessage(`Enter a whole-number quantity between 1 and ${selected.remaining_reserved_ml} ml.`, true);
+            }
+            if (!receivedBy) return showMessage("Enter the recipient's name.", true);
+            if (!window.confirm(`Record distribution of ${quantity} ml from Reservation #${reservationId}, Unit #${selected.unit_id}, to ${selected.hospital_name}? This action changes the database.`)) {
+                showMessage("Distribution cancelled. No changes were made.", false);
+                return;
+            }
+            showMessage("Submitting distribution request...", false);
+
+            const button = document.getElementById("submitDistribution");
+            button.disabled = true;
+            try {
+                const data = await readJson(await fetch("/api/distributions", {
+                    method: "POST",
+                    headers: {"Content-Type":"application/json"},
+                    body: JSON.stringify({
+                        reservation_id: Number(reservationId),
+                        distributed_quantity_ml: quantity,
+                        received_by: receivedBy
+                    })
+                }));
+                showMessage(data.message || "Distribution recorded.");
+                document.getElementById("distributionForm").reset();
+                await Promise.all([loadReservations(), loadDistributions()]);
+            } catch (error) {
+                showMessage(error.message, true);
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        loadReservations();
+        loadDistributions();
+    </script>
+</body>
+</html>
+
+

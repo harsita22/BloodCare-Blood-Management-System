@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <title>Emergency Command Center | BloodCare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .matching-page {
+            padding:28px;color:#f4f7ff;min-height:100vh;
+            background:radial-gradient(ellipse at 90% 0%,rgba(156,20,61,.18),transparent 38%),
+                       radial-gradient(ellipse at 0% 35%,rgba(0,208,220,.09),transparent 34%);
+        }
+        .matching-back{display:inline-flex;margin-bottom:18px;color:#f08ca8;text-decoration:none;font-size:13px;font-weight:700}
+        .matching-header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+        .matching-eyebrow{display:flex;align-items:center;gap:9px;color:#f08ca8;font-size:11px;font-weight:800;letter-spacing:2px;margin-bottom:10px}
+        .matching-live-dot{width:8px;height:8px;border-radius:50%;background:#ff466d;box-shadow:0 0 14px #ff466d}
+        .matching-header h1{margin:0 0 9px;font-size:clamp(27px,3vw,39px);letter-spacing:-1.2px;color:#fff}
+        .matching-header p{margin:0;color:#aab7d0;line-height:1.6}
+        .matching-action{background:linear-gradient(135deg,#e52c58,#a90e3c);color:#fff;border:1px solid #ffffff20;border-radius:10px;padding:11px 15px;cursor:pointer;font-weight:750;box-shadow:0 7px 22px #c6144233;transition:transform .2s,filter .2s}
+        .matching-action:hover{transform:translateY(-2px);filter:brightness(1.1)}
+        .matching-action:disabled{opacity:.45;cursor:not-allowed;transform:none}
+        .matching-hero{position:relative;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(210px,.8fr);align-items:center;gap:20px;overflow:hidden;padding:28px;margin-bottom:24px;border-radius:22px;border:1px solid #ffffff20;background:linear-gradient(115deg,#1f1227f5,#0d1b2ef5);box-shadow:0 18px 45px #0003}
+        .matching-hero h2{margin:0 0 12px;font-size:clamp(25px,3vw,37px);line-height:1.12;letter-spacing:-1px;color:#fff}
+        .matching-hero h2 span{color:#ff6d91}
+        .matching-hero p{max-width:620px;color:#b8c4da;line-height:1.7;margin:0}
+        .matching-hero-tags{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
+        .matching-hero-tags span{border:1px solid #ffffff20;background:#ffffff0b;color:#d6e0f2;border-radius:30px;padding:8px 11px;font-size:10px;font-weight:800;letter-spacing:.7px}
+        .matching-visual{min-height:190px;display:grid;place-items:center;position:relative}
+        .matching-ring{position:absolute;width:190px;height:190px;border-radius:50%;border:1px solid #ff59805a;box-shadow:0 0 30px #ef235b14,inset 0 0 25px #ef235b0f;animation:matchingSpin 15s linear infinite}
+        .matching-ring:before,.matching-ring:after{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:#ff6186;box-shadow:0 0 16px #ff6186}
+        .matching-ring:before{top:21px;left:28px}
+        .matching-ring:after{right:8px;bottom:53px;background:#54e8ee;box-shadow:0 0 15px #54e8ee}
+        .matching-ring-two{width:145px;height:145px;border-color:#44e0eb57;animation-direction:reverse;animation-duration:11s}
+        .matching-drop{z-index:1;display:grid;place-items:center;width:83px;height:105px;background:linear-gradient(145deg,#ff8da9,#d8174e 65%,#851037);clip-path:polygon(50% 0%,60% 17%,77% 36%,93% 58%,96% 72%,89% 88%,74% 98%,50% 100%,26% 98%,11% 88%,4% 72%,7% 58%,23% 36%,40% 17%);filter:drop-shadow(0 0 24px #ff2e686e);color:#fff;font-size:30px;font-weight:900}
+        @keyframes matchingSpin{to{transform:rotate(360deg)}}
+        .matching-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:24px}
+        .matching-stat{position:relative;overflow:hidden;padding:21px;border-radius:17px;border:1px solid #acbbe126;background:linear-gradient(145deg,#172239f2,#0c1526f2)}
+        .matching-stat:after{content:"";position:absolute;width:90px;height:90px;right:-38px;bottom:-48px;border-radius:50%;background:#ee285c1a;filter:blur(3px)}
+        .matching-stat span{display:block;color:#aab8d0;font-size:12px}
+        .matching-stat strong{display:block;font-size:31px;margin-top:11px;color:#fff}
+        .matching-stat:nth-child(2) strong{color:#55e4d1}
+        .matching-stat:nth-child(3) strong{color:#ff86a4}
+        .matching-message{padding:13px 16px;margin:0 0 20px;border-radius:11px;background:#2b425e66;border:1px solid #acbbe126;color:#c8d5ea;line-height:1.5}
+        .matching-panel{margin-bottom:22px;overflow:hidden;border-radius:18px;border:1px solid #acbbe126;background:linear-gradient(145deg,#121d31f7,#0b1323f7);box-shadow:0 12px 32px #0002}
+        .matching-panel-head{padding:21px 22px 15px}
+        .matching-panel h2{margin:0 0 7px;font-size:19px;color:#fff}
+        .matching-panel p{margin:0;color:#a9b8d0;font-size:13px;line-height:1.6}
+        .matching-section-tag{color:#f18ba6;font-size:10px;letter-spacing:1.6px;font-weight:850;margin-bottom:8px}
+        .matching-table-wrap{overflow-x:auto}
+        .matching-table{width:100%;border-collapse:collapse;min-width:760px}
+        .matching-table th{padding:14px 15px;text-align:left;background:#1e2c45cc;color:#aebedb;font-size:10px;letter-spacing:.8px;border-bottom:1px solid #acbbe126;white-space:nowrap}
+        .matching-table td{padding:14px 15px;text-align:left;color:#e3eafa;font-size:13px;border-bottom:1px solid #acbbe117}
+        .matching-table tbody tr:hover{background:#57709b14}
+        .matching-table tbody tr:last-child td{border-bottom:0}
+        .matching-table input{background:#0e192d;border:1px solid #35445e;color:#fff;border-radius:8px;padding:8px;max-width:95px}
+        .matching-note{font-size:12px;line-height:1.7;color:#9baac3;padding:15px 17px;border-left:3px solid #e74b72;border-radius:0 10px 10px 0;background:#172237a6}
+        @media(max-width:800px){.matching-hero{grid-template-columns:1fr}.matching-visual{min-height:150px}.matching-ring{width:145px;height:145px}.matching-ring-two{width:115px;height:115px}}
+        @media(max-width:600px){.matching-page{padding:16px}.matching-hero{padding:21px}.matching-stats{grid-template-columns:1fr}}
+        @media(prefers-reduced-motion:reduce){.matching-ring{animation:none}.matching-action{transition:none}}
+    
+/* EMERGENCY PAGE THEME OVERRIDE */
+html, body {
+    background: #080b13 !important;
+    background-image: radial-gradient(ellipse at 80% 0%, #251525 0%, #080b13 60%) !important;
+    color: #edf3ff !important;
+}
+body, body * {
+    box-sizing: border-box;
+}
+.main, main, .container, .content, .page-content {
+    background-color: transparent !important;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #f4f7ff !important;
+}
+.subtitle, p {
+    color: #b6c5da;
+}
+a {
+    color: #ff8197;
+}
+table {
+    background: #101725 !important;
+    color: #edf3ff !important;
+}
+thead, th {
+    background: #192438 !important;
+    color: #b7c9e4 !important;
+}
+td {
+    color: #edf3ff !important;
+    border-color: #29354a !important;
+}
+</style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+<body>
+<main class="matching-page">
+    <nav class="matching-page-actions" aria-label="Page navigation">
+        <a class="matching-back" href="/">&#8592; Back to Dashboard</a>
+        <a class="matching-back" href="/settings">Settings</a>
+    </nav>
+    <header class="matching-header">
+        <div>
+            <div class="matching-eyebrow"><span class="matching-live-dot"></span> BLOODCARE / RAPID ALLOCATION</div>
+            <h1>Emergency Command Center</h1>
+            <p>Prioritize urgent hospital requests and identify eligible blood units.</p>
+        </div>
+        <button class="matching-action" id="refreshMatching" type="button">Refresh data &#8635;</button>
+    </header>
+
+    <section class="matching-hero">
+        <div>
+            <div class="matching-eyebrow">URGENT RESPONSE NETWORK</div>
+            <h2>Every second<br>can change <span>everything.</span></h2>
+            <p>Review emergency requests, inspect compatible inventory, and record a match proposal for approval by authorized staff.</p>
+            <div class="matching-hero-tags">
+                <span>PRIORITY QUEUE</span><span>UNIT ELIGIBILITY</span><span>CONTROLLED ALLOCATION</span>
+            </div>
+        </div>
+        <div class="matching-visual" aria-hidden="true">
+            <div class="matching-ring"></div><div class="matching-ring matching-ring-two"></div><div class="matching-drop">+</div>
+        </div>
+    </section>
+
+    <section class="matching-stats">
+        <div class="matching-stat"><span>Pending requests</span><strong id="pendingCount">—</strong></div>
+        <div class="matching-stat"><span>Unexpired available units</span><strong id="availableCount">—</strong></div>
+        <div class="matching-stat"><span>Existing match records</span><strong id="matchCount">—</strong></div>
+    </section>
+
+    <div id="matchingMessage" class="matching-message" role="status">Connecting to BloodCare allocation data...</div>
+
+    <section class="matching-panel">
+        <div class="matching-panel-head">
+            <div class="matching-section-tag">01 / TRIAGE</div>
+            <h2>Pending hospital requests</h2>
+            <p>Review each request and select Find matches to inspect eligible inventory.</p>
+        </div>
+        <div class="matching-table-wrap">
+            <table class="matching-table">
+                <thead><tr><th>REQUEST</th><th>HOSPITAL</th><th>BLOOD GROUP</th><th>COMPONENT</th><th>QUANTITY</th><th>URGENCY</th><th>ACTION</th></tr></thead>
+                <tbody id="pendingRequestsBody"><tr><td colspan="7">Loading requests...</td></tr></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="matching-panel">
+        <div class="matching-panel-head">
+            <div class="matching-section-tag">02 / ELIGIBLE INVENTORY</div>
+            <h2>Candidate blood units</h2>
+            <p id="candidateIntro">Select a pending request above to inspect candidate units.</p>
+        </div>
+        <div class="matching-table-wrap">
+            <table class="matching-table">
+                <thead><tr><th>UNIT</th><th>BLOOD GROUP</th><th>COMPONENT</th><th>QUANTITY</th><th>EXPIRY</th><th>LOCATION</th><th>ACTION</th></tr></thead>
+                <tbody id="candidateUnitsBody"><tr><td colspan="7">No request selected.</td></tr></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="matching-panel">
+        <div class="matching-panel-head">
+            <div class="matching-section-tag">03 / AUDIT TRAIL</div>
+            <h2>Matching history</h2>
+            <p>Review proposed and completed matching actions.</p>
+        </div>
+        <div class="matching-table-wrap">
+            <table class="matching-table">
+                <thead><tr><th>MATCH ID</th><th>REQUEST</th><th>UNIT</th><th>QUANTITY</th><th>DATE</th><th>STATUS</th><th>ACTION</th></tr></thead>
+                <tbody id="matchingHistoryBody"><tr><td colspan="7">Loading history...</td></tr></tbody>
+            </table>
+        </div>
+    </section>
+
+    <p class="matching-note">Safety notice: candidate results are preliminary and do not establish clinical compatibility or authorize transfusion. Qualified blood-bank staff must verify clinical compatibility and approve all allocations.</p>
+</main>
+<script src="{{ url_for('static', filename='js/matching.js') }}"></script>
+</body>
+</html>
+

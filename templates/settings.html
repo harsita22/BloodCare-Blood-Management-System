@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <title>Settings | BloodCare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+<body class="settings-body">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">&#129656;</div>
+            <div><h2>BloodCare</h2><span>Management System</span></div>
+        </div>
+        <nav class="navigation" aria-label="Main navigation">
+            <p class="nav-title">MAIN MENU</p>
+            <a href="/" class="nav-item"><span aria-hidden="true">&#128202;</span> Dashboard</a>
+            <a href="/donors" class="nav-item"><span aria-hidden="true">&#128100;</span> Donors</a>
+            <a href="/inventory" class="nav-item"><span aria-hidden="true">&#129656;</span> Blood Inventory</a>
+            <a href="/hospital-requests" class="nav-item"><span aria-hidden="true">&#127973;</span> Hospital Requests</a>
+            <a href="/emergency-matching" class="nav-item"><span aria-hidden="true">&#128279;</span> Emergency Matching</a>
+            <a href="/reservations" class="nav-item"><span aria-hidden="true">&#128203;</span> Reservations</a>
+            <a href="/distribution" class="nav-item"><span aria-hidden="true">&#128230;</span> Distribution</a>
+            <p class="nav-title">MANAGEMENT</p>
+            <a href="/reports" class="nav-item"><span aria-hidden="true">&#128202;</span> Reports</a>
+            <a href="/settings" class="nav-item active" aria-current="page"><span aria-hidden="true">&#9881;</span> Settings</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="help-box">
+                <div class="help-icon" aria-hidden="true">?</div>
+                <div><strong>Need Help?</strong><small>Contact administrator</small></div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar settings-topbar">
+            <div class="mobile-brand">&#129656; BloodCare</div>
+            <div class="settings-topbar-label">BLOODCARE / PREFERENCES</div>
+            <div class="profile">
+                <div class="avatar" aria-hidden="true">A</div>
+                <div class="profile-info"><strong>Administrator</strong><span>Blood Bank</span></div>
+            </div>
+        </header>
+
+        <section class="settings-page" aria-labelledby="settingsTitle">
+            <header class="settings-header">
+                <p class="settings-eyebrow">WORKSPACE PREFERENCES</p>
+                <h1 id="settingsTitle">Appearance</h1>
+                <p>Choose the color theme used across BloodCare on this browser.</p>
+            </header>
+
+            <div class="settings-layout">
+                <fieldset class="theme-options">
+                    <legend>Color theme</legend>
+                    <label class="theme-choice">
+                        <input type="radio" name="theme" value="dark">
+                        <span class="theme-choice-copy">
+                            <strong>Dark Mode</strong>
+                            <small>Keep the current low-glare BloodCare appearance.</small>
+                        </span>
+                        <span class="theme-choice-mark" aria-hidden="true"></span>
+                    </label>
+                    <label class="theme-choice">
+                        <input type="radio" name="theme" value="light">
+                        <span class="theme-choice-copy">
+                            <strong>Light Mode</strong>
+                            <small>Use bright surfaces and dark, readable text.</small>
+                        </span>
+                        <span class="theme-choice-mark" aria-hidden="true"></span>
+                    </label>
+                    <label class="theme-choice">
+                        <input type="radio" name="theme" value="system">
+                        <span class="theme-choice-copy">
+                            <strong>System Mode</strong>
+                            <small>Follow your operating system appearance setting.</small>
+                        </span>
+                        <span class="theme-choice-mark" aria-hidden="true"></span>
+                    </label>
+                </fieldset>
+
+                <aside class="theme-preview" aria-live="polite" aria-label="Theme preview">
+                    <p class="settings-eyebrow">LIVE PREVIEW</p>
+                    <strong class="theme-preview-title">BloodCare workspace</strong>
+                    <p class="theme-preview-copy">Surface <span></span> Text <span></span> Accent <span></span></p>
+                    <p id="effectiveTheme" class="effective-theme">Current appearance: Dark</p>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        (function () {
+            "use strict";
+            const controls = document.querySelectorAll('input[name="theme"]');
+            const effectiveLabel = document.getElementById("effectiveTheme");
+
+            function syncSettings(event) {
+                const state = event.detail;
+                controls.forEach(function (control) {
+                    control.checked = control.value === state.preference;
+                });
+                effectiveLabel.textContent = "Current appearance: " +
+                    state.effectiveTheme.charAt(0).toUpperCase() +
+                    state.effectiveTheme.slice(1);
+            }
+
+            controls.forEach(function (control) {
+                control.addEventListener("change", function () {
+                    window.BloodCareTheme.setPreference(control.value);
+                });
+            });
+
+            window.addEventListener("bloodcare:themechange", syncSettings);
+            syncSettings({
+                detail: {
+                    preference: window.BloodCareTheme.getPreference(),
+                    effectiveTheme: window.BloodCareTheme.getEffectiveTheme()
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
